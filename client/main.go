@@ -3,16 +3,17 @@ package main
 import (
 	"bufio"
 	"flag"
+	"fmt"
+	"github.com/gorilla/websocket"
 	"log"
 	"net/url"
 	"os"
 	"os/signal"
 	"time"
-
-	"github.com/gorilla/websocket"
 )
 
 var addr = flag.String("addr", "localhost:8080", "http service address")
+var code = flag.Int("code", -1, "invitation code")
 
 func main() {
 	flag.Parse()
@@ -21,7 +22,11 @@ func main() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
-	u := url.URL{Scheme: "ws", Host: *addr, Path: "/echo"}
+	u := url.URL{Scheme: "ws", Host: *addr, Path: "/"}
+	if *code >= 0 {
+		u.Path = fmt.Sprintf("/%d", *code)
+	}
+
 	log.Printf("connecting to %s", u.String())
 
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
@@ -35,9 +40,13 @@ func main() {
 	go func() {
 		defer close(done)
 		for {
-			_, message, err := c.ReadMessage()
+			t, message, err := c.ReadMessage()
 			if err != nil {
 				log.Println("read:", err)
+				return
+			}
+			if t == websocket.CloseMessage {
+				log.Println("Closed")
 				return
 			}
 			log.Printf("recv: %s", message)

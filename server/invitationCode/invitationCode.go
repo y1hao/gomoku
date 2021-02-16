@@ -7,12 +7,12 @@ import (
 	"time"
 )
 
-const maxId = 9999
+const MaxId = 9999
 
 var (
-	ids = [maxId + 1]int{}
-	end = maxId
-	mu sync.Mutex
+	ids = [MaxId + 1]int{}
+	end = MaxId
+	mu  sync.Mutex
 )
 
 func init() {
@@ -32,7 +32,7 @@ func Get() (int, error) {
 		return 0, errors.New("no IDs available")
 	}
 
-	i := rand.Intn(end +1)
+	i := rand.Intn(end + 1)
 	id := ids[i]
 	ids[i], ids[end] = ids[end], ids[i]
 	end--
