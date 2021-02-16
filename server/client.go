@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -57,25 +58,66 @@ func ServeWs(s *WsServer, w http.ResponseWriter, r *http.Request) {
 	client := newClient(conn, s)
 
 	if len(params) < 2 || params[1] == "" {
-		code, err := invitationCode.Get()
+		code, err := client.invite()
 		if err != nil {
-			log.Println(err)
+			client.error(err)
 			return
 		}
-		s.invite <- Invitation{Code: code, Client: client}
 		client.conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("Invitation code: %d", code)))
 	} else {
-		code, err := strconv.Atoi(params[1])
-		if err != nil || code < 0 || code > invitationCode.MaxId {
-			log.Println("Invalid invitation code")
+		err := client.accept(params[1])
+		if err != nil {
+			client.error(err)
 			return
 		}
-		s.accept <- Invitation{Code: code, Client: client}
-		invitationCode.Return(code)
 	}
 
 	go client.writePump()
 	go client.readPump()
+}
+
+func (c *Client) error(err error) {
+	log.Println(err)
+	c.conn.WriteMessage(websocket.TextMessage, []byte(err.Error()))
+	c.disconnect()
+}
+
+func (c *Client) invite() (int, error) {
+	code, err := invitationCode.Get()
+	if err != nil {
+		invitationCode.Return(code)
+		return 0, err
+	}
+	c.server.invite <- Invitation{Code: code, Client: c}
+	return code, nil
+}
+
+func (c *Client) accept(codeString string) error {
+	code, err := strconv.Atoi(codeString)
+	if err != nil || code < 0 || code > invitationCode.MaxId {
+		return errors.New(fmt.Sprintf("invalid invitation code: %s", codeString))
+	}
+	if _, ok := c.server.invitations[code]; ok {
+		c.server.accept <- Invitation{Code: code, Client: c}
+		invitationCode.Return(code)
+		return nil
+	}
+	return errors.New(fmt.Sprintf("the invitation code %d does not exist", code))
+}
+
+func (c *Client) disconnect() {
+	c.conn.Close()
+	room := c.room
+	if room == nil {
+		return
+	}
+	room.unregister <-c
+	for client := range room.clients {
+		client.conn.WriteMessage(websocket.TextMessage, []byte("The other has left"))
+	}
+	if len(room.clients) == 0 {
+		c.server.unregister <-room
+	}
 }
 
 func (c *Client) readPump() {
@@ -90,7 +132,6 @@ func (c *Client) readPump() {
 		return nil
 	})
 
-	// Start endless read loop, waiting for messages from client
 	for {
 		_, m, err := c.conn.ReadMessage()
 		if err != nil {
@@ -128,6 +169,7 @@ func (c *Client) writePump() {
 			if err := w.Close(); err != nil {
 				return
 			}
+
 		case <-ticker.C:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
@@ -135,18 +177,6 @@ func (c *Client) writePump() {
 			}
 		}
 	}
-}
-
-func (c *Client) disconnect() {
-	room := c.room
-	room.unregister <- c
-	for client := range room.clients {
-		client.conn.WriteMessage(websocket.TextMessage, []byte("The other has left"))
-	}
-	if len(room.clients) == 0 {
-		c.server.unregister <- room
-	}
-	c.conn.Close()
 }
 
 func (c *Client) handleMessage(m []byte) {

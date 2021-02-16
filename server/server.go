@@ -47,10 +47,8 @@ func (s *WsServer) inviteClient(client *Client, code int) {
 }
 
 func (s *WsServer) acceptClient(client *Client, code int) {
-	if room, ok := s.invitations[code]; ok {
-		room.register <- client
-		delete(s.invitations, code)
-	}
+	s.invitations[code].register <- client
+	delete(s.invitations, code)
 }
 
 func (s *WsServer) unregisterRoom(room *Room) {
