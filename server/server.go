@@ -30,10 +30,10 @@ func (s *Server) invite(c *Client) {
 	room := NewRoom()
 	go room.Run()
 	room.Register <- c
-	s.Invitations[c.code] = room
+	s.Invitations[c.Code] = room
 }
 
 func (s *Server) accept(c *Client) {
-	s.Invitations[c.code].Register <- c
-	delete(s.Invitations, c.code)
+	s.Invitations[c.Code].Register <- c
+	delete(s.Invitations, c.Code)
 }

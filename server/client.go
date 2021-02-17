@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/CoderYihaoWang/gomoku/server/invitationCode"
@@ -17,19 +18,19 @@ var upgrader = websocket.Upgrader{
 }
 
 type Client struct {
-	conn   *websocket.Conn
-	server *Server
-	room   *Room
-	code   int
-	send   chan []byte
+	conn         *websocket.Conn
 	disconnected bool
+	Server       *Server
+	Room         *Room
+	Code         int
+	Send         chan []byte
 }
 
 func newClient(conn *websocket.Conn, server *Server) *Client {
 	return &Client{
 		conn:   conn,
-		server: server,
-		send:   make(chan []byte),
+		Server: server,
+		Send:   make(chan []byte),
 	}
 }
 
@@ -49,7 +50,12 @@ func Serve(s *Server, w http.ResponseWriter, r *http.Request) {
 			client.error(err)
 			return
 		}
-		client.conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("Invitation code: %d", code)))
+		m, err := json.Marshal(fmt.Sprintf("Your invitation Code is: %d", code))
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		client.conn.WriteMessage(websocket.TextMessage, m)
 	} else {
 		err := client.accept(params[1])
 		if err != nil {
@@ -63,9 +69,15 @@ func Serve(s *Server, w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Client) error(err error) {
+	defer c.disconnect()
+
 	log.Println(err)
-	c.conn.WriteMessage(websocket.TextMessage, []byte(err.Error()))
-	c.disconnect()
+	m, err := json.Marshal(Message{Error: err.Error()})
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	c.conn.WriteMessage(websocket.TextMessage, m)
 }
 
 func (c *Client) invite() (int, error) {
@@ -74,23 +86,23 @@ func (c *Client) invite() (int, error) {
 		invitationCode.Return(code)
 		return 0, err
 	}
-	c.code = code
-	c.server.Invite <- c
+	c.Code = code
+	c.Server.Invite <- c
 	return code, nil
 }
 
 func (c *Client) accept(codeString string) error {
 	code, err := strconv.Atoi(codeString)
 	if err != nil || code < 0 || code > invitationCode.MaxId {
-		return errors.New(fmt.Sprintf("invalid invitation code: %s", codeString))
+		return errors.New(fmt.Sprintf("invalid invitation Code: %s", codeString))
 	}
-	if _, ok := c.server.Invitations[code]; ok {
-		c.code = code
-		c.server.Accept <- c
+	if _, ok := c.Server.Invitations[code]; ok {
+		c.Code = code
+		c.Server.Accept <- c
 		invitationCode.Return(code)
 		return nil
 	}
-	return errors.New(fmt.Sprintf("the invitation code %d does not exist", code))
+	return errors.New(fmt.Sprintf("the invitation Code %d does not exist", code))
 }
 
 func (c *Client) disconnect() {
@@ -99,14 +111,17 @@ func (c *Client) disconnect() {
 	}
 	c.disconnected = true
 	c.conn.Close()
-	room := c.room
+	room := c.Room
+	if room == nil {
+		return
+	}
 	room.Unregister <- c
 	for client := range room.Clients {
 		client.conn.WriteMessage(websocket.TextMessage, []byte("The other has left"))
 	}
-	if _, ok := c.server.Invitations[c.code]; ok {
-		delete(c.server.Invitations, c.code)
-		invitationCode.Return(c.code)
+	if _, ok := c.Server.Invitations[c.Code]; ok {
+		delete(c.Server.Invitations, c.Code)
+		invitationCode.Return(c.Code)
 	}
 }
 
@@ -128,7 +143,7 @@ func (c *Client) write() {
 	defer c.disconnect()
 
 	for {
-		message, ok := <-c.send
+		message, ok := <-c.Send
 		if !ok {
 			// The Server closed the channel.
 			c.conn.WriteMessage(websocket.CloseMessage, []byte{})
@@ -149,6 +164,6 @@ func (c *Client) write() {
 
 func (c *Client) handleMessage(m []byte) {
 	if len(m) > 0 {
-		c.room.Broadcast <- m
+		c.Room.Broadcast <- m
 	}
 }

@@ -1,10 +1,13 @@
 package main
 
+import "github.com/CoderYihaoWang/gomoku/server/game"
+
 type Room struct {
 	Clients    map[*Client]bool
 	Register   chan *Client
 	Unregister chan *Client
 	Broadcast  chan []byte
+	Game game.Game
 }
 
 func NewRoom() *Room {
@@ -33,18 +36,18 @@ func (r *Room) Run() {
 
 func (r *Room) register(c *Client) {
 	r.Clients[c] = true
-	c.room = r
+	c.Room = r
 }
 
 func (r *Room) unregister(c *Client) {
 	if _, ok := r.Clients[c]; ok {
 		delete(r.Clients, c)
-		c.room = nil
+		c.Room = nil
 	}
 }
 
 func (r *Room) broadcast(m []byte) {
 	for c := range r.Clients {
-		c.send <- m
+		c.Send <- m
 	}
 }
