@@ -1,5 +1,7 @@
 package game
 
+import "errors"
+
 const Size = 15
 const (
 	Empty = iota
@@ -7,8 +9,8 @@ const (
 	White
 )
 
-type Board [Size][Size]uint8
 type Player uint8
+type Board [Size][Size]Player
 
 type Piece struct {
 	Row    int    `json:"row"`
@@ -23,15 +25,32 @@ type Game struct {
 }
 
 func New() *Game {
-	board := [Size][Size]uint8{}
+	board := [Size][Size]Player{}
 	for i := range board {
-		board[i] = [Size]uint8{}
+		board[i] = [Size]Player{}
 	}
 	return &Game{
 		Board: board,
+		Player: Black,
 	}
 }
 
-func (g *Game) Move(i, j int) (Player, error) {
-	return 0, nil
+func (g *Game) Move(p *Piece) error {
+	r, c := p.Row, p.Col
+	if r < 0 || r >= Size || c < 0 || c >= Size || g.Board[r][c] != 0 || p.Player != g.Player{
+		return errors.New("invalid position")
+	}
+	player := g.Player
+	if player == Black {
+		g.Player = White
+	} else {
+		g.Player = Black
+	}
+	g.Board[r][c] = player
+	g.calcWinning()
+	return nil
+}
+
+func (g *Game) calcWinning() {
+
 }

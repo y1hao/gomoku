@@ -194,7 +194,14 @@ func (c *Client) handleChatMessage(m *message.Message) {
 }
 
 func (c *Client) handleMoveMessage(m *message.Message) {
-	c.Room.Broadcast <- message.NewStatus(game.New())
+	move := m.Move
+	status := c.Room.Game
+	err := status.Move(move)
+	if err != nil {
+		data, _ := json.Marshal(message.NewInvalidMove())
+		c.conn.WriteMessage(websocket.TextMessage, data)
+	}
+	c.Room.Broadcast <- message.NewStatus(status)
 }
 
 func (c *Client) handleCloseMessage(_ *message.Message) {

@@ -13,6 +13,7 @@ const (
 	InvitationCode             = "invitation code"
 	InsufficientInvitationCode = "insufficient invitation code"
 	InvalidInvitationCode      = "invalid invitation code"
+	InvalidMove                = "invalid move"
 )
 
 type Message struct {
@@ -72,5 +73,11 @@ func NewInvalidInvitationCode(code string) *Message {
 	return &Message{
 		Type: InvalidInvitationCode,
 		Info: code,
+	}
+}
+
+func NewInvalidMove() *Message {
+	return &Message{
+		Type: InvalidMove,
 	}
 }
