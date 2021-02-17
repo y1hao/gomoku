@@ -2,16 +2,17 @@ package server
 
 import (
 	"encoding/json"
+
 	"github.com/CoderYihaoWang/gomoku/internal/game"
 	"github.com/CoderYihaoWang/gomoku/internal/message"
 )
 
 type Room struct {
 	Clients    map[*Client]bool
-	Game *game.Game
+	Game       *game.Game
 	Register   chan *Client
 	Unregister chan *Client
-	StartGame chan *game.Game
+	StartGame  chan *game.Game
 	Broadcast  chan *message.Message
 }
 
@@ -20,7 +21,7 @@ func NewRoom() *Room {
 		Clients:    make(map[*Client]bool),
 		Register:   make(chan *Client),
 		Unregister: make(chan *Client),
-		StartGame: make(chan *game.Game),
+		StartGame:  make(chan *game.Game),
 		Broadcast:  make(chan *message.Message),
 	}
 }

@@ -3,10 +3,10 @@ package message
 import "github.com/CoderYihaoWang/gomoku/internal/game"
 
 type Message struct {
-	Type  string      `json:"type"`
-	Info  string      `json:"info,omitempty"`
-	Move  *game.Piece `json:"move,omitempty"`
-	Game  *game.Game  `json:"game,omitempty"`
+	Type string      `json:"type"`
+	Info string      `json:"info,omitempty"`
+	Move *game.Piece `json:"move,omitempty"`
+	Game *game.Game  `json:"game,omitempty"`
 }
 
 func NewError(error string) *Message {

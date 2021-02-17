@@ -2,9 +2,10 @@ package main
 
 import (
 	"flag"
-	"github.com/CoderYihaoWang/gomoku/internal/server"
 	"log"
 	"net/http"
+
+	"github.com/CoderYihaoWang/gomoku/internal/server"
 )
 
 var addr = flag.String("addr", "localhost:8080", "http service address")
