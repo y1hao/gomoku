@@ -2,18 +2,19 @@ package message
 
 import (
 	"github.com/CoderYihaoWang/gomoku/internal/game"
+	"strconv"
 )
 
 const (
 	Chat                       = "chat"
 	Move                       = "move"
 	Status                     = "status"
-	Close                      = "close"
 	OpponentLeft               = "opponent left"
 	InvitationCode             = "invitation code"
 	InsufficientInvitationCode = "insufficient invitation code"
 	InvalidInvitationCode      = "invalid invitation code"
 	InvalidMove                = "invalid move"
+	AssignPlayer = "assign player"
 )
 
 type Message struct {
@@ -41,12 +42,6 @@ func NewStatus(status *game.Game) *Message {
 	return &Message{
 		Type:   Status,
 		Status: status,
-	}
-}
-
-func NewClose() *Message {
-	return &Message{
-		Type: Close,
 	}
 }
 
@@ -79,5 +74,12 @@ func NewInvalidInvitationCode(code string) *Message {
 func NewInvalidMove() *Message {
 	return &Message{
 		Type: InvalidMove,
+	}
+}
+
+func NewAssignPlayer(p game.Player) *Message {
+	return &Message{
+		Type: AssignPlayer,
+		Info: strconv.Itoa(int(p)),
 	}
 }

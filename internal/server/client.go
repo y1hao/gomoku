@@ -19,7 +19,7 @@ var upgrader = websocket.Upgrader{
 }
 
 type Client struct {
-	conn         *websocket.Conn
+	Conn         *websocket.Conn
 	disconnected bool
 	Player       game.Player
 	Server       *Server
@@ -30,7 +30,7 @@ type Client struct {
 
 func newClient(conn *websocket.Conn, server *Server) *Client {
 	return &Client{
-		conn:   conn,
+		Conn:   conn,
 		Server: server,
 		Send:   make(chan []byte),
 	}
@@ -55,7 +55,7 @@ func Serve(s *Server, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		data, _ := json.Marshal(message.NewInvitationCode(strconv.Itoa(code)))
-		client.conn.WriteMessage(websocket.TextMessage, data)
+		client.Conn.WriteMessage(websocket.TextMessage, data)
 	} else {
 		m := client.accept(params[1])
 		if m != nil {
@@ -70,7 +70,7 @@ func Serve(s *Server, w http.ResponseWriter, r *http.Request) {
 
 func (c *Client) error(m *message.Message) {
 	data, _ := json.Marshal(m)
-	c.conn.WriteMessage(websocket.TextMessage, data)
+	c.Conn.WriteMessage(websocket.TextMessage, data)
 }
 
 func (c *Client) invite() (int, *message.Message) {
@@ -109,7 +109,7 @@ func (c *Client) disconnect() {
 	}
 	c.disconnected = true
 
-	c.conn.Close()
+	c.Conn.Close()
 
 	room := c.Room
 	if room == nil {
@@ -123,7 +123,7 @@ func (c *Client) disconnect() {
 
 	for client := range room.Clients {
 		m, _ := json.Marshal(message.NewOpponentLeft())
-		client.conn.WriteMessage(websocket.TextMessage, m)
+		client.Conn.WriteMessage(websocket.TextMessage, m)
 	}
 
 	c.Server.InvitationsMu.Lock()
@@ -139,7 +139,7 @@ func (c *Client) read() {
 	defer c.disconnect()
 
 	for {
-		_, data, err := c.conn.ReadMessage()
+		_, data, err := c.Conn.ReadMessage()
 		if err != nil {
 			log.Println(err)
 			break
@@ -156,11 +156,11 @@ func (c *Client) write() {
 		message, ok := <-c.Send
 		if !ok {
 			// The Server closed the channel.
-			c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+			c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
 			return
 		}
 
-		w, err := c.conn.NextWriter(websocket.TextMessage)
+		w, err := c.Conn.NextWriter(websocket.TextMessage)
 		if err != nil {
 			return
 		}
@@ -184,8 +184,6 @@ func (c *Client) handleMessage(data []byte) {
 		c.handleChatMessage(m)
 	case message.Move:
 		c.handleMoveMessage(m)
-	case message.Close:
-		c.handleCloseMessage(m)
 	}
 }
 
@@ -199,11 +197,7 @@ func (c *Client) handleMoveMessage(m *message.Message) {
 	err := status.Move(move)
 	if err != nil {
 		data, _ := json.Marshal(message.NewInvalidMove())
-		c.conn.WriteMessage(websocket.TextMessage, data)
+		c.Conn.WriteMessage(websocket.TextMessage, data)
 	}
 	c.Room.Broadcast <- message.NewStatus(status)
-}
-
-func (c *Client) handleCloseMessage(_ *message.Message) {
-	c.disconnect()
 }

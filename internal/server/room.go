@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"github.com/gorilla/websocket"
 	"sync"
 
 	"github.com/CoderYihaoWang/gomoku/internal/game"
@@ -74,8 +75,18 @@ func (r *Room) startGame(g *game.Game) {
 	for c := range r.Clients {
 		clients = append(clients, c)
 	}
+
 	clients[0].Player = game.Black
+	m, _ := json.Marshal(message.NewAssignPlayer(game.Black))
+	clients[0].Conn.WriteMessage(websocket.TextMessage, m)
+
 	clients[1].Player = game.White
+	m, _ = json.Marshal(message.NewAssignPlayer(game.White))
+	clients[1].Conn.WriteMessage(websocket.TextMessage, m)
+
+	m, _ = json.Marshal(message.NewStatus(g))
+	clients[0].Conn.WriteMessage(websocket.TextMessage, m)
+	clients[1].Conn.WriteMessage(websocket.TextMessage, m)
 }
 
 func (r *Room) broadcast(m *message.Message) {
