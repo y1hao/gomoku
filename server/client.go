@@ -20,6 +20,7 @@ type Client struct {
 	conn   *websocket.Conn
 	server *WsServer
 	room   *Room
+	code   int
 	send   chan []byte
 }
 
@@ -72,7 +73,8 @@ func (c *Client) invite() (int, error) {
 		invitationCode.Return(code)
 		return 0, err
 	}
-	c.server.invite <- Invitation{Code: code, Client: c}
+	c.code = code
+	c.server.invite <- c
 	return code, nil
 }
 
@@ -82,7 +84,8 @@ func (c *Client) accept(codeString string) error {
 		return errors.New(fmt.Sprintf("invalid invitation code: %s", codeString))
 	}
 	if _, ok := c.server.invitations[code]; ok {
-		c.server.accept <- Invitation{Code: code, Client: c}
+		c.code = code
+		c.server.accept <- c
 		invitationCode.Return(code)
 		return nil
 	}
@@ -99,6 +102,10 @@ func (c *Client) disconnect() {
 	for client := range room.clients {
 		client.conn.WriteMessage(websocket.TextMessage, []byte("The other has left"))
 	}
+	if _, ok := c.server.invitations[c.code]; ok {
+		delete(c.server.invitations, c.code)
+		invitationCode.Return(c.code)
+	}
 	if len(room.clients) == 0 {
 		c.server.unregister <- room
 	}
@@ -112,9 +119,7 @@ func (c *Client) read() {
 	for {
 		_, m, err := c.conn.ReadMessage()
 		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("unexpected close error: %v", err)
-			}
+			log.Println(err)
 			break
 		}
 

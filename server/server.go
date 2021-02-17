@@ -1,15 +1,10 @@
 package main
 
-type Invitation struct {
-	Code   int
-	Client *Client
-}
-
 type WsServer struct {
 	rooms       map[*Room]bool
 	invitations map[int]*Room
-	invite      chan Invitation
-	accept      chan Invitation
+	invite      chan *Client
+	accept      chan *Client
 	unregister  chan *Room
 }
 
@@ -17,8 +12,8 @@ func NewWsServer() *WsServer {
 	return &WsServer{
 		rooms:       make(map[*Room]bool),
 		invitations: make(map[int]*Room),
-		invite:      make(chan Invitation),
-		accept:      make(chan Invitation),
+		invite:      make(chan *Client),
+		accept:      make(chan *Client),
 		unregister:  make(chan *Room),
 	}
 }
@@ -26,29 +21,29 @@ func NewWsServer() *WsServer {
 func (s *WsServer) Run() {
 	for {
 		select {
-		case inv := <-s.invite:
-			s.inviteClient(inv.Client, inv.Code)
+		case c := <-s.invite:
+			s.inviteClient(c)
 
-		case inv := <-s.accept:
-			s.acceptClient(inv.Client, inv.Code)
+		case c := <-s.accept:
+			s.acceptClient(c)
 
-		case room := <-s.unregister:
-			s.unregisterRoom(room)
+		case r := <-s.unregister:
+			s.unregisterRoom(r)
 		}
 	}
 }
 
-func (s *WsServer) inviteClient(client *Client, code int) {
+func (s *WsServer) inviteClient(c *Client) {
 	room := NewRoom()
 	go room.Run()
-	room.register <- client
+	room.register <- c
 	s.rooms[room] = true
-	s.invitations[code] = room
+	s.invitations[c.code] = room
 }
 
-func (s *WsServer) acceptClient(client *Client, code int) {
-	s.invitations[code].register <- client
-	delete(s.invitations, code)
+func (s *WsServer) acceptClient(c *Client) {
+	s.invitations[c.code].register <- c
+	delete(s.invitations, c.code)
 }
 
 func (s *WsServer) unregisterRoom(room *Room) {
