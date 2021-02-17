@@ -1,5 +1,7 @@
 package main
 
+import "github.com/CoderYihaoWang/gomoku/server/game"
+
 type Server struct {
 	Invitations map[int]*Room
 	Invite      chan *Client
@@ -34,6 +36,9 @@ func (s *Server) invite(c *Client) {
 }
 
 func (s *Server) accept(c *Client) {
-	s.Invitations[c.Code].Register <- c
+	room := s.Invitations[c.Code]
+	room.Register <- c
 	delete(s.Invitations, c.Code)
+	g := game.New()
+	room.StartGame <- g
 }

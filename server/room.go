@@ -1,13 +1,18 @@
 package main
 
-import "github.com/CoderYihaoWang/gomoku/server/game"
+import (
+	"encoding/json"
+	"github.com/CoderYihaoWang/gomoku/server/game"
+)
 
 type Room struct {
 	Clients    map[*Client]bool
+	Game *game.Game
 	Register   chan *Client
 	Unregister chan *Client
-	Broadcast  chan []byte
-	Game game.Game
+	StartGame chan *game.Game
+	Broadcast  chan *Message
+
 }
 
 func NewRoom() *Room {
@@ -15,7 +20,8 @@ func NewRoom() *Room {
 		Clients:    make(map[*Client]bool),
 		Register:   make(chan *Client),
 		Unregister: make(chan *Client),
-		Broadcast:  make(chan []byte),
+		StartGame: make(chan *game.Game),
+		Broadcast:  make(chan *Message),
 	}
 }
 
@@ -30,6 +36,9 @@ func (r *Room) Run() {
 
 		case m := <-r.Broadcast:
 			r.broadcast(m)
+
+		case g := <-r.StartGame:
+			r.startGame(g)
 		}
 	}
 }
@@ -46,8 +55,16 @@ func (r *Room) unregister(c *Client) {
 	}
 }
 
-func (r *Room) broadcast(m []byte) {
+func (r *Room) startGame(g *game.Game) {
+	r.Game = g
+}
+
+func (r *Room) broadcast(m *Message) {
+	data, err := json.Marshal(m)
+	if err != nil {
+		return
+	}
 	for c := range r.Clients {
-		c.Send <- m
+		c.Send <- data
 	}
 }

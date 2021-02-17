@@ -163,7 +163,17 @@ func (c *Client) write() {
 }
 
 func (c *Client) handleMessage(m []byte) {
-	if len(m) > 0 {
-		c.Room.Broadcast <- m
+	if len(m) == 0 {
+		return
+	}
+	var move Move
+	err := json.Unmarshal(m, &move)
+	if err != nil {
+		return
+	}
+	c.Room.Broadcast <- &Message{
+		Player: c.Room.Game.Player,
+		Board: c.Room.Game.Board,
+		WinningPieces: c.Room.Game.WinningPieces,
 	}
 }
