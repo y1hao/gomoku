@@ -8,7 +8,7 @@ type Server struct {
 	Accept      chan *Client
 }
 
-func NewServer() *Server {
+func New() *Server {
 	return &Server{
 		Invitations: make(map[int]*Room),
 		Invite:      make(chan *Client),

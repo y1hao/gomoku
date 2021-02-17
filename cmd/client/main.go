@@ -23,9 +23,9 @@ func main() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
-	u := url.URL{Scheme: "ws", Host: *addr, Path: "/"}
+	u := url.URL{Scheme: "ws", Host: *addr, Path: "/ws/"}
 	if *code >= 0 {
-		u.Path = fmt.Sprintf("/%d", *code)
+		u.Path = fmt.Sprintf("/ws/%d", *code)
 	}
 
 	log.Printf("connecting to %s", u.String())

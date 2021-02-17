@@ -45,7 +45,9 @@ func Serve(s *Server, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	params := strings.Split(r.URL.Path, "/")
+	prefix := "/ws"
+	path := r.URL.Path[len(prefix):]
+	params := strings.Split(path, "/")
 	client := newClient(conn, s)
 
 	if len(params) < 2 || params[1] == "" {
