@@ -9,7 +9,6 @@ const (
 	Chat                       = "chat"
 	Move                       = "move"
 	Status                     = "status"
-	Leave                      = "leave"
 	OpponentLeft               = "opponent left"
 	InvitationCode             = "invitation code"
 	InsufficientInvitationCode = "insufficient invitation code"
@@ -19,16 +18,22 @@ const (
 )
 
 type Message struct {
-	Type   string      `json:"type"`
-	Info   string      `json:"info,omitempty"`
-	Move   *game.Piece `json:"move,omitempty"`
-	Status *game.Game  `json:"status,omitempty"`
+	Type        string       `json:"type"`
+	Info        string       `json:"info,omitempty"`
+	ChatMessage *ChatMessage `json:"chatMessage,omitempty"`
+	Move        *game.Piece  `json:"move,omitempty"`
+	Status      *game.Game   `json:"status,omitempty"`
 }
 
-func NewChat(chat string) *Message {
+type ChatMessage struct {
+	Sender  *game.Piece `json:"sender"`
+	Message string      `json:"message"`
+}
+
+func NewChat(m *ChatMessage) *Message {
 	return &Message{
-		Type: Chat,
-		Info: chat,
+		Type:        Chat,
+		ChatMessage: m,
 	}
 }
 
@@ -43,12 +48,6 @@ func NewStatus(status *game.Game) *Message {
 	return &Message{
 		Type:   Status,
 		Status: status,
-	}
-}
-
-func NewLeave() *Message {
-	return &Message{
-		Type: Leave,
 	}
 }
 

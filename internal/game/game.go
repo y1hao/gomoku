@@ -30,7 +30,7 @@ func New() *Game {
 		board[i] = [Size]Player{}
 	}
 	return &Game{
-		Board: board,
+		Board:  board,
 		Player: Black,
 	}
 }
@@ -40,7 +40,7 @@ func (g *Game) Move(p *Piece) error {
 		return errors.New("the game has ended")
 	}
 	r, c := p.Row, p.Col
-	if r < 0 || r >= Size || c < 0 || c >= Size || g.Board[r][c] != 0 || p.Player != g.Player{
+	if r < 0 || r >= Size || c < 0 || c >= Size || g.Board[r][c] != 0 || p.Player != g.Player {
 		return errors.New("invalid position")
 	}
 	player := g.Player
@@ -69,7 +69,7 @@ func (g *Game) calcWinning(p *Piece) {
 		}
 	}
 	if end-beg-1 >= 5 {
-		for i := beg+1; i < end; i++ {
+		for i := beg + 1; i < end; i++ {
 			g.WinningPieces = append(g.WinningPieces, Piece{Row: i, Col: p.Col, Player: p.Player})
 		}
 	}
@@ -86,7 +86,7 @@ func (g *Game) calcWinning(p *Piece) {
 		}
 	}
 	if end-beg-1 >= 5 {
-		for i := beg+1; i < end; i++ {
+		for i := beg + 1; i < end; i++ {
 			g.WinningPieces = append(g.WinningPieces, Piece{Row: p.Row, Col: i, Player: p.Player})
 		}
 	}
@@ -98,7 +98,7 @@ func (g *Game) calcWinning(p *Piece) {
 			break
 		}
 	}
-	for endR, endC = p.Row, p.Col; endR < Size  && endC >= 0; endR, endC = endR+1, endC-1 {
+	for endR, endC = p.Row, p.Col; endR < Size && endC >= 0; endR, endC = endR+1, endC-1 {
 		if g.Board[endR][endC] != p.Player {
 			break
 		}
@@ -115,7 +115,7 @@ func (g *Game) calcWinning(p *Piece) {
 			break
 		}
 	}
-	for endR, endC = p.Row, p.Col; endR < Size  && endC < Size; endR, endC = endR+1, endC+1 {
+	for endR, endC = p.Row, p.Col; endR < Size && endC < Size; endR, endC = endR+1, endC+1 {
 		if g.Board[endR][endC] != p.Player {
 			break
 		}

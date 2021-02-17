@@ -2,10 +2,8 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/CoderYihaoWang/gomoku/internal/message"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/url"
@@ -75,9 +73,7 @@ func main() {
 
 			// Cleanly close the connection by sending a close message and then
 			// waiting (with timeout) for the server to close the connection.
-			data, _ := json.Marshal(message.NewLeave())
-			err := c.WriteMessage(websocket.TextMessage, data)
-
+			err := c.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 			if err != nil {
 				log.Println("write close:", err)
 				return

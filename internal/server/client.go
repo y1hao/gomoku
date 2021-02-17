@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -141,6 +142,9 @@ func (c *Client) read() {
 	for {
 		_, data, err := c.Conn.ReadMessage()
 		if err != nil {
+			if !websocket.IsCloseError(err, websocket.CloseNormalClosure) {
+				fmt.Printf("read: %v", err)
+			}
 			// closed
 			break
 		}
@@ -184,8 +188,6 @@ func (c *Client) handleMessage(data []byte) {
 		c.handleChatMessage(m)
 	case message.Move:
 		c.handleMoveMessage(m)
-	case message.Leave:
-		c.handleLeaveMessage()
 	}
 }
 
@@ -203,8 +205,4 @@ func (c *Client) handleMoveMessage(m *message.Message) {
 		return
 	}
 	c.Room.Broadcast <- message.NewStatus(status)
-}
-
-func (c *Client) handleLeaveMessage() {
-	c.disconnect()
 }
