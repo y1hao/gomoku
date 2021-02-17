@@ -106,9 +106,6 @@ func (c *Client) disconnect() {
 		delete(c.server.invitations, c.code)
 		invitationCode.Return(c.code)
 	}
-	if len(room.clients) == 0 {
-		c.server.unregister <- room
-	}
 }
 
 func (c *Client) read() {
