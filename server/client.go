@@ -100,9 +100,6 @@ func (c *Client) disconnect() {
 	c.disconnected = true
 	c.conn.Close()
 	room := c.room
-	if room == nil {
-		return
-	}
 	room.Unregister <- c
 	for client := range room.Clients {
 		client.conn.WriteMessage(websocket.TextMessage, []byte("The other has left"))
