@@ -2,8 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -51,22 +49,17 @@ func Serve(s *Server, w http.ResponseWriter, r *http.Request) {
 	client := newClient(conn, s)
 
 	if len(params) < 2 || params[1] == "" {
-		code, err := client.invite()
-		if err != nil {
-			client.error(err)
+		code, m := client.invite()
+		if m != nil {
+			client.error(m)
 			return
 		}
-		m, err := json.Marshal(message.NewInfo(fmt.Sprintf("Your invitation Code is: %d", code)))
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-
-		client.conn.WriteMessage(websocket.TextMessage, m)
+		data, _ := json.Marshal(message.NewInvitationCode(strconv.Itoa(code)))
+		client.conn.WriteMessage(websocket.TextMessage, data)
 	} else {
-		err := client.accept(params[1])
-		if err != nil {
-			client.error(err)
+		m := client.accept(params[1])
+		if m != nil {
+			client.error(m)
 			return
 		}
 	}
@@ -75,41 +68,39 @@ func Serve(s *Server, w http.ResponseWriter, r *http.Request) {
 	go client.read()
 }
 
-func (c *Client) error(err error) {
-	defer c.disconnect()
-
-	log.Println(err)
-	m, err := json.Marshal(message.NewError(err.Error()))
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	c.conn.WriteMessage(websocket.TextMessage, m)
+func (c *Client) error(m *message.Message) {
+	data, _ := json.Marshal(m)
+	c.conn.WriteMessage(websocket.TextMessage, data)
 }
 
-func (c *Client) invite() (int, error) {
+func (c *Client) invite() (int, *message.Message) {
 	code, err := invitationCode.Get()
 	if err != nil {
-		invitationCode.Return(code)
-		return 0, err
+		return 0, message.NewInsufficientInvitationCode()
 	}
 	c.Code = code
 	c.Server.Invite <- c
 	return code, nil
 }
 
-func (c *Client) accept(codeString string) error {
+func (c *Client) accept(codeString string) *message.Message {
 	code, err := strconv.Atoi(codeString)
 	if err != nil || code < 0 || code > invitationCode.MaxId {
-		return errors.New(fmt.Sprintf("invalid invitation Code: %s", codeString))
+		return message.NewInvalidInvitationCode(codeString)
 	}
-	if _, ok := c.Server.Invitations[code]; ok {
-		c.Code = code
-		c.Server.Accept <- c
-		invitationCode.Return(code)
-		return nil
+
+	c.Server.InvitationsMu.Lock()
+	defer c.Server.InvitationsMu.Unlock()
+
+	_, ok := c.Server.Invitations[code]
+	if !ok {
+		return message.NewInvalidInvitationCode(codeString)
 	}
-	return errors.New(fmt.Sprintf("the invitation Code %d does not exist", code))
+
+	c.Code = code
+	c.Server.Accept <- c
+	invitationCode.Return(code)
+	return nil
 }
 
 func (c *Client) disconnect() {
@@ -117,16 +108,27 @@ func (c *Client) disconnect() {
 		return
 	}
 	c.disconnected = true
+
 	c.conn.Close()
+
 	room := c.Room
 	if room == nil {
 		return
 	}
+
 	room.Unregister <- c
+
+	room.ClientsMu.Lock()
+	defer room.ClientsMu.Unlock()
+
 	for client := range room.Clients {
-		m, _ := json.Marshal(message.NewError("The opponent has left"))
+		m, _ := json.Marshal(message.NewOpponentLeft())
 		client.conn.WriteMessage(websocket.TextMessage, m)
 	}
+
+	c.Server.InvitationsMu.Lock()
+	defer c.Server.InvitationsMu.Unlock()
+
 	if _, ok := c.Server.Invitations[c.Code]; ok {
 		delete(c.Server.Invitations, c.Code)
 		invitationCode.Return(c.Code)
@@ -178,12 +180,12 @@ func (c *Client) handleMessage(data []byte) {
 	}
 
 	switch m.Type {
-	case "chat":
+	case message.Chat:
 		c.handleChatMessage(m)
-	case "move":
+	case message.Move:
 		c.handleMoveMessage(m)
-	case "leave":
-		c.handleLeaveMessage(m)
+	case message.Close:
+		c.handleCloseMessage(m)
 	}
 }
 
@@ -192,9 +194,9 @@ func (c *Client) handleChatMessage(m *message.Message) {
 }
 
 func (c *Client) handleMoveMessage(m *message.Message) {
-	c.Room.Broadcast <- message.NewGame(nil)
+	c.Room.Broadcast <- message.NewStatus(game.New())
 }
 
-func (c *Client) handleLeaveMessage(m *message.Message) {
+func (c *Client) handleCloseMessage(_ *message.Message) {
 	c.disconnect()
 }
