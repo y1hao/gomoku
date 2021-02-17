@@ -1,50 +1,50 @@
 package main
 
 type Room struct {
-	clients    map[*Client]bool
-	register   chan *Client
-	unregister chan *Client
-	broadcast  chan []byte
+	Clients    map[*Client]bool
+	Register   chan *Client
+	Unregister chan *Client
+	Broadcast  chan []byte
 }
 
 func NewRoom() *Room {
 	return &Room{
-		clients:    make(map[*Client]bool),
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
-		broadcast:  make(chan []byte),
+		Clients:    make(map[*Client]bool),
+		Register:   make(chan *Client),
+		Unregister: make(chan *Client),
+		Broadcast:  make(chan []byte),
 	}
 }
 
 func (r *Room) Run() {
 	for {
 		select {
-		case c := <-r.register:
-			r.registerClient(c)
+		case c := <-r.Register:
+			r.register(c)
 
-		case c := <-r.unregister:
-			r.unregisterClient(c)
+		case c := <-r.Unregister:
+			r.unregister(c)
 
-		case m := <-r.broadcast:
-			r.broadCast(m)
+		case m := <-r.Broadcast:
+			r.broadcast(m)
 		}
 	}
 }
 
-func (r *Room) registerClient(c *Client) {
-	r.clients[c] = true
+func (r *Room) register(c *Client) {
+	r.Clients[c] = true
 	c.room = r
 }
 
-func (r *Room) unregisterClient(c *Client) {
-	if _, ok := r.clients[c]; ok {
-		delete(r.clients, c)
+func (r *Room) unregister(c *Client) {
+	if _, ok := r.Clients[c]; ok {
+		delete(r.Clients, c)
 		c.room = nil
 	}
 }
 
-func (r *Room) broadCast(m []byte) {
-	for c := range r.clients {
+func (r *Room) broadcast(m []byte) {
+	for c := range r.Clients {
 		c.send <- m
 	}
 }

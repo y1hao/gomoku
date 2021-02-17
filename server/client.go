@@ -74,7 +74,7 @@ func (c *Client) invite() (int, error) {
 		return 0, err
 	}
 	c.code = code
-	c.server.invite <- c
+	c.server.Invite <- c
 	return code, nil
 }
 
@@ -83,9 +83,9 @@ func (c *Client) accept(codeString string) error {
 	if err != nil || code < 0 || code > invitationCode.MaxId {
 		return errors.New(fmt.Sprintf("invalid invitation code: %s", codeString))
 	}
-	if _, ok := c.server.invitations[code]; ok {
+	if _, ok := c.server.Invitations[code]; ok {
 		c.code = code
-		c.server.accept <- c
+		c.server.Accept <- c
 		invitationCode.Return(code)
 		return nil
 	}
@@ -98,12 +98,12 @@ func (c *Client) disconnect() {
 	if room == nil {
 		return
 	}
-	room.unregister <- c
-	for client := range room.clients {
+	room.Unregister <- c
+	for client := range room.Clients {
 		client.conn.WriteMessage(websocket.TextMessage, []byte("The other has left"))
 	}
-	if _, ok := c.server.invitations[c.code]; ok {
-		delete(c.server.invitations, c.code)
+	if _, ok := c.server.Invitations[c.code]; ok {
+		delete(c.server.Invitations, c.code)
 		invitationCode.Return(c.code)
 	}
 }
@@ -147,6 +147,6 @@ func (c *Client) write() {
 
 func (c *Client) handleMessage(m []byte) {
 	if len(m) > 0 {
-		c.room.broadcast <- m
+		c.room.Broadcast <- m
 	}
 }

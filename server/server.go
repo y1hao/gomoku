@@ -1,39 +1,39 @@
 package main
 
 type Server struct {
-	invitations map[int]*Room
-	invite      chan *Client
-	accept      chan *Client
+	Invitations map[int]*Room
+	Invite      chan *Client
+	Accept      chan *Client
 }
 
 func NewServer() *Server {
 	return &Server{
-		invitations: make(map[int]*Room),
-		invite:      make(chan *Client),
-		accept:      make(chan *Client),
+		Invitations: make(map[int]*Room),
+		Invite:      make(chan *Client),
+		Accept:      make(chan *Client),
 	}
 }
 
 func (s *Server) Run() {
 	for {
 		select {
-		case c := <-s.invite:
-			s.sendInvitation(c)
+		case c := <-s.Invite:
+			s.invite(c)
 
-		case c := <-s.accept:
-			s.acceptInvitation(c)
+		case c := <-s.Accept:
+			s.accept(c)
 		}
 	}
 }
 
-func (s *Server) sendInvitation(c *Client) {
+func (s *Server) invite(c *Client) {
 	room := NewRoom()
 	go room.Run()
-	room.register <- c
-	s.invitations[c.code] = room
+	room.Register <- c
+	s.Invitations[c.code] = room
 }
 
-func (s *Server) acceptInvitation(c *Client) {
-	s.invitations[c.code].register <- c
-	delete(s.invitations, c.code)
+func (s *Server) accept(c *Client) {
+	s.Invitations[c.code].Register <- c
+	delete(s.Invitations, c.code)
 }
