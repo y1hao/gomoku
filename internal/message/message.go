@@ -9,12 +9,13 @@ const (
 	Chat                       = "chat"
 	Move                       = "move"
 	Status                     = "status"
+	Leave                      = "leave"
 	OpponentLeft               = "opponent left"
 	InvitationCode             = "invitation code"
 	InsufficientInvitationCode = "insufficient invitation code"
 	InvalidInvitationCode      = "invalid invitation code"
 	InvalidMove                = "invalid move"
-	AssignPlayer = "assign player"
+	AssignPlayer               = "assign player"
 )
 
 type Message struct {
@@ -42,6 +43,12 @@ func NewStatus(status *game.Game) *Message {
 	return &Message{
 		Type:   Status,
 		Status: status,
+	}
+}
+
+func NewLeave() *Message {
+	return &Message{
+		Type: Leave,
 	}
 }
 

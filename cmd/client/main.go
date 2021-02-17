@@ -2,15 +2,16 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/CoderYihaoWang/gomoku/internal/message"
+	"github.com/gorilla/websocket"
 	"log"
 	"net/url"
 	"os"
 	"os/signal"
 	"time"
-
-	"github.com/gorilla/websocket"
 )
 
 var addr = flag.String("addr", "localhost:8080", "http service address")
@@ -43,7 +44,7 @@ func main() {
 		for {
 			_, message, err := c.ReadMessage()
 			if err != nil {
-				log.Println(err)
+				// closed
 				return
 			}
 			log.Printf("recv: %s", message)
@@ -74,7 +75,9 @@ func main() {
 
 			// Cleanly close the connection by sending a close message and then
 			// waiting (with timeout) for the server to close the connection.
-			err := c.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+			data, _ := json.Marshal(message.NewLeave())
+			err := c.WriteMessage(websocket.TextMessage, data)
+
 			if err != nil {
 				log.Println("write close:", err)
 				return
