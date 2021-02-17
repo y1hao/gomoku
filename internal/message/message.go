@@ -27,7 +27,7 @@ type Message struct {
 }
 
 type ChatMessage struct {
-	Sender  *game.Piece `json:"sender"`
+	Sender  game.Player `json:"sender"`
 	Message string      `json:"message"`
 }
 

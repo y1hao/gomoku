@@ -2,18 +2,25 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/CoderYihaoWang/gomoku/internal/game"
+	"github.com/CoderYihaoWang/gomoku/internal/message"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/url"
 	"os"
 	"os/signal"
+	"strconv"
+	"strings"
 	"time"
 )
 
 var addr = flag.String("addr", "localhost:8080", "http service address")
 var code = flag.Int("code", -1, "invitation code")
+
+var player game.Player
 
 func main() {
 	flag.Parse()
@@ -36,16 +43,20 @@ func main() {
 	defer c.Close()
 
 	done := make(chan struct{})
-
 	go func() {
 		defer close(done)
 		for {
-			_, message, err := c.ReadMessage()
+			_, data, err := c.ReadMessage()
 			if err != nil {
 				// closed
 				return
 			}
-			log.Printf("recv: %s", message)
+			var m message.Message
+			err = json.Unmarshal(data, &m)
+			if err != nil {
+				continue
+			}
+			handleMessage(&m)
 		}
 	}()
 
@@ -54,7 +65,11 @@ func main() {
 		defer close(input)
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {
-			input <- scanner.Bytes()
+			data := strings.TrimSpace(string(scanner.Bytes()))
+			if len(data) == 0 {
+				continue
+			}
+			input <- formatMessage(data)
 		}
 	}()
 
@@ -85,4 +100,94 @@ func main() {
 			return
 		}
 	}
+}
+
+func formatMessage(m string) []byte {
+	fields := strings.Split(m, " ")
+	if len(fields) < 1 {
+		return nil
+	}
+	var data []byte
+	switch fields[0] {
+	case "chat":
+		data, _ = json.Marshal(message.NewChat(&message.ChatMessage{
+			Sender:  player,
+			Message: strings.Join(fields[1:], " "),
+		}))
+	case "move":
+		if len(fields) < 3 {
+			break
+		}
+		row, err := strconv.Atoi(fields[1])
+		if err != nil {
+			break
+		}
+		col, err := strconv.Atoi(fields[2])
+		if err != nil {
+			break
+		}
+		data, _ = json.Marshal(message.NewMove(&game.Piece{
+			Row: row,
+			Col: col,
+			Player: player,
+		}))
+	}
+	return data
+}
+
+func handleMessage(m *message.Message) {
+	switch m.Type {
+	case message.Chat:
+		fmt.Printf("%d: %s\n", m.ChatMessage.Sender, m.ChatMessage.Message)
+
+	case message.Status:
+		printStatus(m.Status)
+
+	case message.OpponentLeft:
+		fmt.Printf("Opponent left\n")
+
+	case message.InvitationCode:
+		fmt.Printf("Your invitation code is: %s\n", m.Info)
+
+	case message.InsufficientInvitationCode:
+		fmt.Printf("Insufficient invitation code\n")
+
+	case message.InvalidInvitationCode:
+		fmt.Printf("Invalid invitation code: %s\n", m.Info)
+
+	case message.InvalidMove:
+		fmt.Printf("Invalid move\n")
+
+	case message.AssignPlayer:
+		p, _ := strconv.Atoi(m.Info)
+		player = game.Player(p)
+		fmt.Printf("You are: %d\n", player)
+
+	case message.InvalidMessageFormat:
+		fmt.Printf("Invalid message format\n")
+
+	}
+}
+
+func printStatus(status *game.Game) {
+	if len(status.WinningPieces) != 0 {
+		fmt.Printf("%d wins!\n", status.WinningPieces[0].Player)
+		return
+	}
+
+	for i := range status.Board {
+		for j := range status.Board[i] {
+			fmt.Printf("%v ", status.Board[i][j])
+		}
+		fmt.Println()
+	}
+
+	if status.LastMove != nil {
+		fmt.Printf("Last move: %d: [%d, %d]\n",
+			status.LastMove.Player,
+			status.LastMove.Row,
+			status.LastMove.Col)
+	}
+
+	fmt.Printf("%d's turn\n", status.Player)
 }
