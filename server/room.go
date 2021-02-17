@@ -12,7 +12,6 @@ type Room struct {
 	Unregister chan *Client
 	StartGame chan *game.Game
 	Broadcast  chan *Message
-
 }
 
 func NewRoom() *Room {
@@ -57,6 +56,13 @@ func (r *Room) unregister(c *Client) {
 
 func (r *Room) startGame(g *game.Game) {
 	r.Game = g
+
+	clients := make([]*Client, 0, 2)
+	for c := range r.Clients {
+		clients = append(clients, c)
+	}
+	clients[0].Player = game.Black
+	clients[1].Player = game.White
 }
 
 func (r *Room) broadcast(m *Message) {

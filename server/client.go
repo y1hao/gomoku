@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/CoderYihaoWang/gomoku/server/game"
 	"github.com/CoderYihaoWang/gomoku/server/invitationCode"
 	"github.com/gorilla/websocket"
 	"log"
@@ -20,6 +21,7 @@ var upgrader = websocket.Upgrader{
 type Client struct {
 	conn         *websocket.Conn
 	disconnected bool
+	Player       game.Player
 	Server       *Server
 	Room         *Room
 	Code         int
@@ -129,13 +131,13 @@ func (c *Client) read() {
 	defer c.disconnect()
 
 	for {
-		_, m, err := c.conn.ReadMessage()
+		_, data, err := c.conn.ReadMessage()
 		if err != nil {
 			log.Println(err)
 			break
 		}
 
-		c.handleMessage(m)
+		c.handleMessage(data)
 	}
 }
 
@@ -162,18 +164,28 @@ func (c *Client) write() {
 	}
 }
 
-func (c *Client) handleMessage(m []byte) {
-	if len(m) == 0 {
-		return
-	}
-	var move Move
-	err := json.Unmarshal(m, &move)
+func (c *Client) handleMessage(data []byte) {
+	m := &Message{}
+	err := json.Unmarshal(data, m)
 	if err != nil {
 		return
 	}
+
+	switch m.Type {
+	case "chat":
+		c.handleChatMessage(m)
+	case "move":
+		c.handleMoveMessage(m)
+	}
+}
+
+func (c *Client) handleChatMessage(m *Message) {
+	c.Room.Broadcast <-m
+}
+
+func (c *Client) handleMoveMessage(m *Message) {
 	c.Room.Broadcast <- &Message{
-		Player: c.Room.Game.Player,
-		Board: c.Room.Game.Board,
-		WinningPieces: c.Room.Game.WinningPieces,
+		Type: "move",
+		Game: c.Room.Game,
 	}
 }

@@ -17,9 +17,9 @@ type Piece struct {
 }
 
 type Game struct {
-	Board         Board
-	Player        Player
-	WinningPieces []Piece
+	Board         Board   `json:"board"`
+	Player        Player  `json:"player"`
+	WinningPieces []Piece `json:"winningPieces,omitempty"`
 }
 
 func New() *Game {
