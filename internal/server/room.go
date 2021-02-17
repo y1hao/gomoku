@@ -1,8 +1,9 @@
-package main
+package server
 
 import (
 	"encoding/json"
-	"github.com/CoderYihaoWang/gomoku/server/game"
+	"github.com/CoderYihaoWang/gomoku/internal/game"
+	"github.com/CoderYihaoWang/gomoku/internal/message"
 )
 
 type Room struct {
@@ -11,7 +12,7 @@ type Room struct {
 	Register   chan *Client
 	Unregister chan *Client
 	StartGame chan *game.Game
-	Broadcast  chan *Message
+	Broadcast  chan *message.Message
 }
 
 func NewRoom() *Room {
@@ -20,7 +21,7 @@ func NewRoom() *Room {
 		Register:   make(chan *Client),
 		Unregister: make(chan *Client),
 		StartGame: make(chan *game.Game),
-		Broadcast:  make(chan *Message),
+		Broadcast:  make(chan *message.Message),
 	}
 }
 
@@ -65,7 +66,7 @@ func (r *Room) startGame(g *game.Game) {
 	clients[1].Player = game.White
 }
 
-func (r *Room) broadcast(m *Message) {
+func (r *Room) broadcast(m *message.Message) {
 	data, err := json.Marshal(m)
 	if err != nil {
 		return

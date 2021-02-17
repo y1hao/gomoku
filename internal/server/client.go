@@ -1,16 +1,18 @@
-package main
+package server
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/CoderYihaoWang/gomoku/server/game"
-	"github.com/CoderYihaoWang/gomoku/server/invitationCode"
-	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/CoderYihaoWang/gomoku/internal/game"
+	"github.com/CoderYihaoWang/gomoku/internal/invitationCode"
+	"github.com/CoderYihaoWang/gomoku/internal/message"
+	"github.com/gorilla/websocket"
 )
 
 var upgrader = websocket.Upgrader{
@@ -52,11 +54,12 @@ func Serve(s *Server, w http.ResponseWriter, r *http.Request) {
 			client.error(err)
 			return
 		}
-		m, err := json.Marshal(fmt.Sprintf("Your invitation Code is: %d", code))
+		m, err := json.Marshal(message.NewInfo(fmt.Sprintf("Your invitation Code is: %d", code)))
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
+
 		client.conn.WriteMessage(websocket.TextMessage, m)
 	} else {
 		err := client.accept(params[1])
@@ -74,7 +77,7 @@ func (c *Client) error(err error) {
 	defer c.disconnect()
 
 	log.Println(err)
-	m, err := json.Marshal(Message{Error: err.Error()})
+	m, err := json.Marshal(message.NewError(err.Error()))
 	if err != nil {
 		log.Println(err)
 		return
@@ -119,7 +122,8 @@ func (c *Client) disconnect() {
 	}
 	room.Unregister <- c
 	for client := range room.Clients {
-		client.conn.WriteMessage(websocket.TextMessage, []byte("The other has left"))
+		m, _ := json.Marshal(message.NewError("The opponent has left"))
+		client.conn.WriteMessage(websocket.TextMessage, m)
 	}
 	if _, ok := c.Server.Invitations[c.Code]; ok {
 		delete(c.Server.Invitations, c.Code)
@@ -165,7 +169,7 @@ func (c *Client) write() {
 }
 
 func (c *Client) handleMessage(data []byte) {
-	m := &Message{}
+	m := &message.Message{}
 	err := json.Unmarshal(data, m)
 	if err != nil {
 		return
@@ -176,16 +180,19 @@ func (c *Client) handleMessage(data []byte) {
 		c.handleChatMessage(m)
 	case "move":
 		c.handleMoveMessage(m)
+	case "leave":
+		c.handleLeaveMessage(m)
 	}
 }
 
-func (c *Client) handleChatMessage(m *Message) {
-	c.Room.Broadcast <-m
+func (c *Client) handleChatMessage(m *message.Message) {
+	c.Room.Broadcast <- m
 }
 
-func (c *Client) handleMoveMessage(m *Message) {
-	c.Room.Broadcast <- &Message{
-		Type: "move",
-		Game: c.Room.Game,
-	}
+func (c *Client) handleMoveMessage(m *message.Message) {
+	c.Room.Broadcast <- message.NewGame(nil)
+}
+
+func (c *Client) handleLeaveMessage(m *message.Message) {
+	c.disconnect()
 }

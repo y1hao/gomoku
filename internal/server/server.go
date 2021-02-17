@@ -1,6 +1,6 @@
-package main
+package server
 
-import "github.com/CoderYihaoWang/gomoku/server/game"
+import "github.com/CoderYihaoWang/gomoku/internal/game"
 
 type Server struct {
 	Invitations map[int]*Room
