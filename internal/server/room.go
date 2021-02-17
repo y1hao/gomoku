@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"sync"
 
 	"github.com/CoderYihaoWang/gomoku/internal/game"
 	"github.com/CoderYihaoWang/gomoku/internal/message"
@@ -9,6 +10,7 @@ import (
 
 type Room struct {
 	Clients    map[*Client]bool
+	ClientsMu  sync.Mutex
 	Game       *game.Game
 	Register   chan *Client
 	Unregister chan *Client
@@ -45,11 +47,17 @@ func (r *Room) Run() {
 }
 
 func (r *Room) register(c *Client) {
+	r.ClientsMu.Lock()
+	defer r.ClientsMu.Unlock()
+
 	r.Clients[c] = true
 	c.Room = r
 }
 
 func (r *Room) unregister(c *Client) {
+	r.ClientsMu.Lock()
+	defer r.ClientsMu.Unlock()
+
 	if _, ok := r.Clients[c]; ok {
 		delete(r.Clients, c)
 		c.Room = nil
@@ -57,6 +65,9 @@ func (r *Room) unregister(c *Client) {
 }
 
 func (r *Room) startGame(g *game.Game) {
+	r.ClientsMu.Lock()
+	defer r.ClientsMu.Unlock()
+
 	r.Game = g
 
 	clients := make([]*Client, 0, 2)
@@ -68,6 +79,9 @@ func (r *Room) startGame(g *game.Game) {
 }
 
 func (r *Room) broadcast(m *message.Message) {
+	r.ClientsMu.Lock()
+	defer r.ClientsMu.Unlock()
+
 	data, err := json.Marshal(m)
 	if err != nil {
 		return

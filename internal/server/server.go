@@ -1,11 +1,16 @@
 package server
 
-import "github.com/CoderYihaoWang/gomoku/internal/game"
+import (
+	"sync"
+
+	"github.com/CoderYihaoWang/gomoku/internal/game"
+)
 
 type Server struct {
-	Invitations map[int]*Room
-	Invite      chan *Client
-	Accept      chan *Client
+	Invitations   map[int]*Room
+	InvitationsMu sync.Mutex
+	Invite        chan *Client
+	Accept        chan *Client
 }
 
 func New() *Server {
@@ -32,13 +37,21 @@ func (s *Server) invite(c *Client) {
 	room := NewRoom()
 	go room.Run()
 	room.Register <- c
+
+	s.InvitationsMu.Lock()
+	defer s.InvitationsMu.Unlock()
+
 	s.Invitations[c.Code] = room
 }
 
 func (s *Server) accept(c *Client) {
+	s.InvitationsMu.Lock()
+	defer s.InvitationsMu.Unlock()
+
 	room := s.Invitations[c.Code]
 	room.Register <- c
 	delete(s.Invitations, c.Code)
+
 	g := game.New()
 	room.StartGame <- g
 }
