@@ -41,13 +41,8 @@ func main() {
 	go func() {
 		defer close(done)
 		for {
-			t, message, err := c.ReadMessage()
+			_, message, err := c.ReadMessage()
 			if err != nil {
-				log.Println("read:", err)
-				return
-			}
-			if t == websocket.CloseMessage {
-				log.Println("Closed")
 				return
 			}
 			log.Printf("recv: %s", message)
