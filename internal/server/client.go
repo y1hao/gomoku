@@ -177,9 +177,14 @@ func (c *Client) write() {
 }
 
 func (c *Client) handleMessage(data []byte) {
+	if len(data) == 0 {
+		return
+	}
 	m := &message.Message{}
 	err := json.Unmarshal(data, m)
 	if err != nil {
+		m, _ := json.Marshal(message.NewInvalidMessageFormat())
+		c.Conn.WriteMessage(websocket.TextMessage, m)
 		return
 	}
 

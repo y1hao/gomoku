@@ -15,6 +15,7 @@ const (
 	InvalidInvitationCode      = "invalid invitation code"
 	InvalidMove                = "invalid move"
 	AssignPlayer               = "assign player"
+	InvalidMessageFormat       = "invalid message format"
 )
 
 type Message struct {
@@ -87,5 +88,11 @@ func NewAssignPlayer(p game.Player) *Message {
 	return &Message{
 		Type: AssignPlayer,
 		Info: strconv.Itoa(int(p)),
+	}
+}
+
+func NewInvalidMessageFormat() *Message {
+	return &Message{
+		Type: InvalidMessageFormat,
 	}
 }
