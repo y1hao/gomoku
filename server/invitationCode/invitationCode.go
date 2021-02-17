@@ -19,6 +19,7 @@ func init() {
 	for i := range ids {
 		ids[i] = i
 	}
+	rand.Seed(time.Now().UnixNano())
 }
 
 // Get returns a unique random 4-digit invitation code
@@ -31,7 +32,6 @@ func Get() (int, error) {
 		return 0, errors.New("no IDs available")
 	}
 
-	rand.Seed(time.Now().UnixNano())
 	i := rand.Intn(end + 1)
 	id := ids[i]
 	ids[i], ids[end] = ids[end], ids[i]
