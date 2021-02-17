@@ -18,13 +18,13 @@ var upgrader = websocket.Upgrader{
 
 type Client struct {
 	conn   *websocket.Conn
-	server *WsServer
+	server *Server
 	room   *Room
 	code   int
 	send   chan []byte
 }
 
-func newClient(conn *websocket.Conn, server *WsServer) *Client {
+func newClient(conn *websocket.Conn, server *Server) *Client {
 	return &Client{
 		conn:   conn,
 		server: server,
@@ -32,7 +32,7 @@ func newClient(conn *websocket.Conn, server *WsServer) *Client {
 	}
 }
 
-func ServeWs(s *WsServer, w http.ResponseWriter, r *http.Request) {
+func Serve(s *Server, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
@@ -128,7 +128,7 @@ func (c *Client) write() {
 	for {
 		message, ok := <-c.send
 		if !ok {
-			// The WsServer closed the channel.
+			// The Server closed the channel.
 			c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 			return
 		}
