@@ -22,6 +22,7 @@ type Client struct {
 	room   *Room
 	code   int
 	send   chan []byte
+	disconnected bool
 }
 
 func newClient(conn *websocket.Conn, server *Server) *Client {
@@ -93,6 +94,10 @@ func (c *Client) accept(codeString string) error {
 }
 
 func (c *Client) disconnect() {
+	if c.disconnected {
+		return
+	}
+	c.disconnected = true
 	c.conn.Close()
 	room := c.room
 	if room == nil {
@@ -109,9 +114,7 @@ func (c *Client) disconnect() {
 }
 
 func (c *Client) read() {
-	defer func() {
-		c.disconnect()
-	}()
+	defer c.disconnect()
 
 	for {
 		_, m, err := c.conn.ReadMessage()
@@ -125,6 +128,8 @@ func (c *Client) read() {
 }
 
 func (c *Client) write() {
+	defer c.disconnect()
+
 	for {
 		message, ok := <-c.send
 		if !ok {
