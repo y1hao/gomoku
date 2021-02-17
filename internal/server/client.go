@@ -198,6 +198,7 @@ func (c *Client) handleMoveMessage(m *message.Message) {
 	if err != nil {
 		data, _ := json.Marshal(message.NewInvalidMove())
 		c.Conn.WriteMessage(websocket.TextMessage, data)
+		return
 	}
 	c.Room.Broadcast <- message.NewStatus(status)
 }

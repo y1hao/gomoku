@@ -36,6 +36,9 @@ func New() *Game {
 }
 
 func (g *Game) Move(p *Piece) error {
+	if g.WinningPieces != nil {
+		return errors.New("the game has ended")
+	}
 	r, c := p.Row, p.Col
 	if r < 0 || r >= Size || c < 0 || c >= Size || g.Board[r][c] != 0 || p.Player != g.Player{
 		return errors.New("invalid position")
@@ -47,10 +50,79 @@ func (g *Game) Move(p *Piece) error {
 		g.Player = Black
 	}
 	g.Board[r][c] = player
-	g.calcWinning()
+	g.calcWinning(p)
 	return nil
 }
 
-func (g *Game) calcWinning() {
+func (g *Game) calcWinning(p *Piece) {
+	var beg, end int
 
+	// vertical
+	for beg = p.Row; beg >= 0; beg-- {
+		if g.Board[beg][p.Col] != p.Player {
+			break
+		}
+	}
+	for end = p.Row; end < Size; end++ {
+		if g.Board[end][p.Col] != p.Player {
+			break
+		}
+	}
+	if end-beg-1 >= 5 {
+		for i := beg+1; i < end; i++ {
+			g.WinningPieces = append(g.WinningPieces, Piece{Row: i, Col: p.Col, Player: p.Player})
+		}
+	}
+
+	// horizontal
+	for beg = p.Col; beg >= 0; beg-- {
+		if g.Board[p.Row][beg] != p.Player {
+			break
+		}
+	}
+	for end = p.Col; end < Size; end++ {
+		if g.Board[p.Row][end] != p.Player {
+			break
+		}
+	}
+	if end-beg-1 >= 5 {
+		for i := beg+1; i < end; i++ {
+			g.WinningPieces = append(g.WinningPieces, Piece{Row: p.Row, Col: i, Player: p.Player})
+		}
+	}
+
+	var begR, begC, endR, endC int
+	// forward diagonal
+	for begR, begC = p.Row, p.Col; begR >= 0 && begC < Size; begR, begC = begR-1, begC+1 {
+		if g.Board[begR][begC] != p.Player {
+			break
+		}
+	}
+	for endR, endC = p.Row, p.Col; endR < Size  && endC >= 0; endR, endC = endR+1, endC-1 {
+		if g.Board[endR][endC] != p.Player {
+			break
+		}
+	}
+	if endR-begR-1 >= 5 {
+		for i, j := begR+1, begC-1; i < endR && j > endC; i, j = i+1, j-1 {
+			g.WinningPieces = append(g.WinningPieces, Piece{Row: i, Col: j, Player: p.Player})
+		}
+	}
+
+	// backward diagonal
+	for begR, begC = p.Row, p.Col; begR >= 0 && begC >= 0; begR, begC = begR-1, begC-1 {
+		if g.Board[begR][begC] != p.Player {
+			break
+		}
+	}
+	for endR, endC = p.Row, p.Col; endR < Size  && endC < Size; endR, endC = endR+1, endC+1 {
+		if g.Board[endR][endC] != p.Player {
+			break
+		}
+	}
+	if endR-begR-1 >= 5 {
+		for i, j := begR+1, begC+1; i < endR && j < endC; i, j = i+1, j+1 {
+			g.WinningPieces = append(g.WinningPieces, Piece{Row: i, Col: j, Player: p.Player})
+		}
+	}
 }
