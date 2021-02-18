@@ -131,6 +131,8 @@ func formatMessage(m string) []byte {
 			Col: col,
 			Player: player,
 		}))
+	case "rematch":
+		data, _ = json.Marshal(message.NewNextGame())
 	}
 	return data
 }
@@ -166,6 +168,8 @@ func handleMessage(m *message.Message) {
 	case message.InvalidMessageFormat:
 		fmt.Printf("Invalid message format\n")
 
+	case message.InvalidOperation:
+		fmt.Printf("Invalid operation\n")
 	}
 }
 

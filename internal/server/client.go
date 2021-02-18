@@ -191,8 +191,12 @@ func (c *Client) handleMessage(data []byte) {
 	switch m.Type {
 	case message.Chat:
 		c.handleChatMessage(m)
+
 	case message.Move:
 		c.handleMoveMessage(m)
+
+	case message.NextGame:
+		c.handleNextGame()
 	}
 }
 
@@ -210,4 +214,13 @@ func (c *Client) handleMoveMessage(m *message.Message) {
 		return
 	}
 	c.Room.Broadcast <- message.NewStatus(status)
+}
+
+func (c *Client) handleNextGame() {
+	if c.Room.Game.Winner == game.None {
+		data, _ := json.Marshal(message.NewInvalidOperation())
+		c.Conn.WriteMessage(websocket.TextMessage, data)
+		return
+	}
+	c.Server.Rematch <-c
 }

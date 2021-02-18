@@ -11,11 +11,13 @@ const (
 	Status                     = "status"
 	OpponentLeft               = "opponent left"
 	InvitationCode             = "invitation code"
+	NextGame = "next game"
 	InsufficientInvitationCode = "insufficient invitation code"
 	InvalidInvitationCode      = "invalid invitation code"
 	InvalidMove                = "invalid move"
 	AssignPlayer               = "assign player"
 	InvalidMessageFormat       = "invalid message format"
+	InvalidOperation = "invalid operation"
 )
 
 type Message struct {
@@ -65,6 +67,12 @@ func NewInvitationCode(code string) *Message {
 	}
 }
 
+func NewNextGame() *Message {
+	return &Message{
+		Type: NextGame,
+	}
+}
+
 func NewInsufficientInvitationCode() *Message {
 	return &Message{
 		Type: InsufficientInvitationCode,
@@ -94,5 +102,11 @@ func NewAssignPlayer(p game.Player) *Message {
 func NewInvalidMessageFormat() *Message {
 	return &Message{
 		Type: InvalidMessageFormat,
+	}
+}
+
+func NewInvalidOperation() *Message {
+	return &Message{
+		Type: InvalidOperation,
 	}
 }
