@@ -218,6 +218,7 @@ func (c *Client) handleMessage(data []byte) {
 }
 
 func (c *Client) handleChatMessage(m *message.Message) {
+	m.ChatMessage.Time = time.Now()
 	c.Room.Broadcast <- m
 }
 

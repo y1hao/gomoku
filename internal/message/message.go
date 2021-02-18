@@ -3,6 +3,7 @@ package message
 import (
 	"github.com/CoderYihaoWang/gomoku/internal/game"
 	"strconv"
+	"time"
 )
 
 const (
@@ -30,6 +31,7 @@ type Message struct {
 
 type ChatMessage struct {
 	Sender  game.Player `json:"sender"`
+	Time    time.Time   `json:"time"`
 	Message string      `json:"message"`
 }
 

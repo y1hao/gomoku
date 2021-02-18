@@ -140,7 +140,8 @@ func formatMessage(m string) []byte {
 func handleMessage(m *message.Message) {
 	switch m.Type {
 	case message.Chat:
-		fmt.Printf("%d: %s\n", m.ChatMessage.Sender, m.ChatMessage.Message)
+		m := m.ChatMessage
+		fmt.Printf("[%v] %d: %s\n", m.Time, m.Sender, m.Message)
 
 	case message.Status:
 		printStatus(m.Status)
