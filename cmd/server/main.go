@@ -17,7 +17,7 @@ func main() {
 	go s.Run()
 
 	http.HandleFunc("/ws/", func(w http.ResponseWriter, r *http.Request) {
-		server.Serve(s, w, r)
+		server.ServeWs(s, w, r)
 	})
 
 	log.Fatal(http.ListenAndServe(*addr, nil))

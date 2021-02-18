@@ -43,15 +43,14 @@ func newClient(conn *websocket.Conn, server *Server) *Client {
 	}
 }
 
-func Serve(s *Server, w http.ResponseWriter, r *http.Request) {
+func ServeWs(s *Server, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	prefix := "/ws"
-	path := r.URL.Path[len(prefix):]
+	path := r.URL.Path[len("/ws"):]
 	params := strings.Split(path, "/")
 	client := newClient(conn, s)
 
