@@ -10,22 +10,27 @@ import (
 )
 
 type Room struct {
-	Clients    map[*Client]bool
-	ClientsMu  sync.Mutex
-	Game       *game.Game
-	Register   chan *Client
-	Unregister chan *Client
-	StartGame  chan *game.Game
-	Broadcast  chan *message.Message
+	Clients           map[*Client]bool
+	ClientsMu         sync.Mutex
+	Game              *game.Game
+	Register          chan *Client
+	Unregister        chan *Client
+	StartGame         chan struct{}
+	Broadcast         chan *message.Message
+	Rematch           chan *Client
+	rematchRequests   map[*Client]bool
+	rematchRequestsMu sync.Mutex
 }
 
 func NewRoom() *Room {
 	return &Room{
-		Clients:    make(map[*Client]bool),
-		Register:   make(chan *Client),
-		Unregister: make(chan *Client),
-		StartGame:  make(chan *game.Game),
-		Broadcast:  make(chan *message.Message),
+		Clients:         make(map[*Client]bool),
+		Register:        make(chan *Client),
+		Unregister:      make(chan *Client),
+		StartGame:       make(chan struct{}),
+		Broadcast:       make(chan *message.Message),
+		Rematch:         make(chan *Client),
+		rematchRequests: make(map[*Client]bool),
 	}
 }
 
@@ -41,8 +46,11 @@ func (r *Room) Run() {
 		case m := <-r.Broadcast:
 			r.broadcast(m)
 
-		case g := <-r.StartGame:
-			r.startGame(g)
+		case <-r.StartGame:
+			r.startGame()
+
+		case c := <-r.Rematch:
+			r.registerRematch(c)
 		}
 	}
 }
@@ -65,11 +73,11 @@ func (r *Room) unregister(c *Client) {
 	}
 }
 
-func (r *Room) startGame(g *game.Game) {
+func (r *Room) startGame() {
 	r.ClientsMu.Lock()
 	defer r.ClientsMu.Unlock()
 
-	r.Game = g
+	r.Game = game.New()
 
 	clients := make([]*Client, 0, 2)
 	for c := range r.Clients {
@@ -84,9 +92,19 @@ func (r *Room) startGame(g *game.Game) {
 	m, _ = json.Marshal(message.NewAssignPlayer(game.White))
 	clients[1].Conn.WriteMessage(websocket.TextMessage, m)
 
-	m, _ = json.Marshal(message.NewStatus(g))
+	m, _ = json.Marshal(message.NewStatus(r.Game))
 	clients[0].Conn.WriteMessage(websocket.TextMessage, m)
 	clients[1].Conn.WriteMessage(websocket.TextMessage, m)
+}
+
+func (r *Room) registerRematch(c *Client) {
+	r.rematchRequestsMu.Lock()
+	defer r.rematchRequestsMu.Unlock()
+
+	r.rematchRequests[c] = true
+	if len(r.rematchRequests) == 2 {
+		r.startGame()
+	}
 }
 
 func (r *Room) broadcast(m *message.Message) {

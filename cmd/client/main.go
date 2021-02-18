@@ -127,8 +127,8 @@ func formatMessage(m string) []byte {
 			break
 		}
 		data, _ = json.Marshal(message.NewMove(&game.Piece{
-			Row: row,
-			Col: col,
+			Row:    row,
+			Col:    col,
 			Player: player,
 		}))
 	case "rematch":

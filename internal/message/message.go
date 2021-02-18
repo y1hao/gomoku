@@ -11,13 +11,13 @@ const (
 	Status                     = "status"
 	OpponentLeft               = "opponent left"
 	InvitationCode             = "invitation code"
-	NextGame = "next game"
+	NextGame                   = "next game"
 	InsufficientInvitationCode = "insufficient invitation code"
 	InvalidInvitationCode      = "invalid invitation code"
 	InvalidMove                = "invalid move"
 	AssignPlayer               = "assign player"
 	InvalidMessageFormat       = "invalid message format"
-	InvalidOperation = "invalid operation"
+	InvalidOperation           = "invalid operation"
 )
 
 type Message struct {

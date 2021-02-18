@@ -222,5 +222,5 @@ func (c *Client) handleNextGame() {
 		c.Conn.WriteMessage(websocket.TextMessage, data)
 		return
 	}
-	c.Server.Rematch <-c
+	c.Room.Rematch <- c
 }

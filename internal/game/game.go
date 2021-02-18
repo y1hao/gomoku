@@ -2,7 +2,6 @@ package game
 
 import (
 	"errors"
-	"math/rand"
 )
 
 const Size = 15
@@ -36,16 +35,9 @@ func New() *Game {
 		board[i] = [Size]Player{}
 	}
 
-	var player Player
-	if rand.Float64() > 0.5 {
-		player = Black
-	} else {
-		player = White
-	}
-
 	return &Game{
 		Board:  board,
-		Player: player,
+		Player: Black,
 	}
 }
 
