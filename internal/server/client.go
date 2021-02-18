@@ -2,16 +2,22 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/CoderYihaoWang/gomoku/internal/game"
 	"github.com/CoderYihaoWang/gomoku/internal/invitationCode"
 	"github.com/CoderYihaoWang/gomoku/internal/message"
 	"github.com/gorilla/websocket"
+)
+
+const (
+	pongWait       = 60 * time.Second
+	pingPeriod     = (pongWait * 9) / 10
+	maxMessageSize = 2048
 )
 
 var upgrader = websocket.Upgrader{
@@ -139,13 +145,16 @@ func (c *Client) disconnect() {
 func (c *Client) read() {
 	defer c.disconnect()
 
+	c.Conn.SetReadLimit(maxMessageSize)
+	c.Conn.SetReadDeadline(time.Now().Add(pongWait))
+	c.Conn.SetPongHandler(func(string) error {
+		c.Conn.SetReadDeadline(time.Now().Add(pongWait))
+		return nil
+	})
+
 	for {
 		_, data, err := c.Conn.ReadMessage()
 		if err != nil {
-			if !websocket.IsCloseError(err, websocket.CloseNormalClosure) {
-				fmt.Printf("read: %v", err)
-			}
-			// closed
 			break
 		}
 
@@ -156,22 +165,31 @@ func (c *Client) read() {
 func (c *Client) write() {
 	defer c.disconnect()
 
+	ticker := time.NewTicker(pingPeriod)
+	defer ticker.Stop()
+
 	for {
-		message, ok := <-c.Send
-		if !ok {
-			// The Server closed the channel.
-			c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
-			return
-		}
+		select {
+		case m, ok := <-c.Send:
+			if !ok {
+				c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
+				return
+			}
 
-		w, err := c.Conn.NextWriter(websocket.TextMessage)
-		if err != nil {
-			return
-		}
-		w.Write(message)
+			w, err := c.Conn.NextWriter(websocket.TextMessage)
+			if err != nil {
+				return
+			}
+			w.Write(m)
 
-		if err := w.Close(); err != nil {
-			return
+			if err := w.Close(); err != nil {
+				return
+			}
+
+		case <-ticker.C:
+			if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				return
+			}
 		}
 	}
 }
