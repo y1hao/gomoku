@@ -4,9 +4,10 @@ import "errors"
 
 const Size = 15
 const (
-	Empty = iota
+	None = iota
 	Black
 	White
+	Draw
 )
 
 type Player uint8
@@ -21,6 +22,7 @@ type Piece struct {
 type Game struct {
 	Board         Board    `json:"board"`
 	Player        Player   `json:"player"`
+	Winner        Player   `json:"winner,omitempty"`
 	LastMove      *Piece   `json:"lastMove,omitempty"`
 	WinningPieces []*Piece `json:"winningPieces,omitempty"`
 }
@@ -37,9 +39,10 @@ func New() *Game {
 }
 
 func (g *Game) Move(p *Piece) error {
-	if g.WinningPieces != nil {
+	if g.Winner != None {
 		return errors.New("the game has ended")
 	}
+
 	r, c := p.Row, p.Col
 	if r < 0 || r >= Size ||
 		c < 0 || c >= Size ||
@@ -56,7 +59,23 @@ func (g *Game) Move(p *Piece) error {
 	}
 	g.Board[r][c] = player
 	g.calcWinning(p)
+
+	if g.Winner == None {
+		g.testDraw()
+	}
+
 	return nil
+}
+
+func (g *Game) testDraw() {
+	for i := range g.Board {
+		for j := range g.Board[i] {
+			if g.Board[i][j] == None {
+				return
+			}
+		}
+	}
+	g.Winner = Draw
 }
 
 func (g *Game) calcWinning(p *Piece) {
@@ -74,6 +93,7 @@ func (g *Game) calcWinning(p *Piece) {
 		}
 	}
 	if end-beg-1 >= 5 {
+		g.Winner = p.Player
 		for i := beg + 1; i < end; i++ {
 			g.WinningPieces = append(g.WinningPieces, &Piece{Row: i, Col: p.Col, Player: p.Player})
 		}
@@ -92,6 +112,7 @@ func (g *Game) calcWinning(p *Piece) {
 	}
 	if end-beg-1 >= 5 {
 		for i := beg + 1; i < end; i++ {
+			g.Winner = p.Player
 			g.WinningPieces = append(g.WinningPieces, &Piece{Row: p.Row, Col: i, Player: p.Player})
 		}
 	}
@@ -110,6 +131,7 @@ func (g *Game) calcWinning(p *Piece) {
 	}
 	if endR-begR-1 >= 5 {
 		for i, j := begR+1, begC-1; i < endR && j > endC; i, j = i+1, j-1 {
+			g.Winner = p.Player
 			g.WinningPieces = append(g.WinningPieces, &Piece{Row: i, Col: j, Player: p.Player})
 		}
 	}
@@ -127,6 +149,7 @@ func (g *Game) calcWinning(p *Piece) {
 	}
 	if endR-begR-1 >= 5 {
 		for i, j := begR+1, begC+1; i < endR && j < endC; i, j = i+1, j+1 {
+			g.Winner = p.Player
 			g.WinningPieces = append(g.WinningPieces, &Piece{Row: i, Col: j, Player: p.Player})
 		}
 	}
