@@ -15,8 +15,8 @@ import (
 )
 
 var upgrader = websocket.Upgrader{
-	ReadBufferSize:  4096,
-	WriteBufferSize: 4096,
+	ReadBufferSize:  512,
+	WriteBufferSize: 512,
 }
 
 type Client struct {
