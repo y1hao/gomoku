@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"github.com/gorilla/websocket"
+	"math/rand"
 	"sync"
 
 	"github.com/CoderYihaoWang/gomoku/internal/game"
@@ -84,12 +85,19 @@ func (r *Room) startGame() {
 		clients = append(clients, c)
 	}
 
-	clients[0].Player = game.Black
-	m, _ := json.Marshal(message.NewAssignPlayer(game.Black))
+	var p0, p1 game.Player
+	if rand.Float64() > 0.5 {
+		p0, p1 = game.Black, game.White
+	} else {
+		p0, p1 = game.White, game.Black
+	}
+
+	clients[0].Player = p0
+	m, _ := json.Marshal(message.NewAssignPlayer(p0))
 	clients[0].Conn.WriteMessage(websocket.TextMessage, m)
 
-	clients[1].Player = game.White
-	m, _ = json.Marshal(message.NewAssignPlayer(game.White))
+	clients[1].Player = p1
+	m, _ = json.Marshal(message.NewAssignPlayer(p1))
 	clients[1].Conn.WriteMessage(websocket.TextMessage, m)
 
 	m, _ = json.Marshal(message.NewStatus(r.Game))
