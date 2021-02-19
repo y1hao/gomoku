@@ -13,13 +13,15 @@ import (
 
 type inputHandler struct {
 	Input chan []byte
+	Exit chan struct{}
 	Console *Console
 	Context *Context
 }
 
-func NewInputHandler(input chan []byte, console *Console, context *Context) *inputHandler {
+func NewInputHandler(input chan []byte, exit chan struct{}, console *Console, context *Context) *inputHandler {
 	return &inputHandler{
 		Input: input,
+		Exit: exit,
 		Console: console,
 		Context: context,
 	}
@@ -43,6 +45,8 @@ func (handler *inputHandler) formatMessage(m string) []byte {
 	}
 	var data []byte
 	switch fields[0] {
+	case "exit":
+		close(handler.Exit)
 	case "chat":
 		data, _ = json.Marshal(message.NewChat(&message.ChatMessage{
 			Sender:  handler.Context.AssignedPlayer,

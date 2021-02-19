@@ -45,7 +45,8 @@ func main() {
 	go messageHandler.Run()
 
 	input := make(chan []byte)
-	inputHandler := client.NewInputHandler(input, console, context)
+	exit := make(chan struct{})
+	inputHandler := client.NewInputHandler(input, exit, console, context)
 	go inputHandler.Run()
 
 	done := make(chan struct{})
@@ -54,7 +55,6 @@ func main() {
 		for {
 			_, data, err := c.ReadMessage()
 			if err != nil {
-				// closed
 				return
 			}
 			var m message.Message
@@ -70,27 +70,31 @@ func main() {
 		select {
 		case <-done:
 			return
+		case <-interrupt:
+			handleExit(c, done)
+			return
+		case <-exit:
+			handleExit(c, done)
+			return
 		case m := <-input:
 			err := c.WriteMessage(websocket.TextMessage, m)
 			if err != nil {
-				log.Println("write:", err)
+				log.Println("Connection was lost")
 				return
 			}
-		case <-interrupt:
-			log.Println("interrupt")
-
-			// Cleanly close the connection by sending a close messages and then
-			// waiting (with timeout) for the server to close the connection.
-			err := c.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
-			if err != nil {
-				log.Println("write close:", err)
-				return
-			}
-			select {
-			case <-done:
-			case <-time.After(time.Second):
-			}
-			return
 		}
 	}
+}
+
+func handleExit(c *websocket.Conn, done chan struct{}) {
+	err := c.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+	if err != nil {
+		log.Println("Connection was lost")
+		return
+	}
+	select {
+	case <-done:
+	case <-time.After(time.Second):
+	}
+	return
 }
