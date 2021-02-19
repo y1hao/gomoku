@@ -14,10 +14,10 @@ type MessageHandler struct {
 	Context *Context
 }
 
-func NewMessageHandler(message chan *message.Message, context *Context) *MessageHandler {
+func NewMessageHandler(message chan *message.Message, console *Console, context *Context) *MessageHandler {
 	return &MessageHandler{
 		Message: message,
-		Console: NewConsole(context),
+		Console: console,
 		Context: context,
 	}
 }
