@@ -17,10 +17,14 @@ const (
 
 type color int
 
-type formatted struct {
-	row, col int
+type colored struct {
 	fg, bg color
 	text string
+}
+
+type formatted struct {
+	row, col int
+	colored
 }
 
 func print(output ...*formatted) {

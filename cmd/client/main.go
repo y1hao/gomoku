@@ -26,6 +26,8 @@ func main() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
+	context := client.NewContext()
+
 	u := url.URL{Scheme: "ws", Host: *addr, Path: "/ws/"}
 	if *code >= 0 {
 		u.Path = fmt.Sprintf("/ws/%d", *code)
@@ -37,8 +39,8 @@ func main() {
 	}
 	defer c.Close()
 
-	context := client.NewContext()
 	console := client.NewConsole(context)
+	console.DrawAll()
 
 	messages := make(chan *message.Message)
 	messageHandler := client.NewMessageHandler(messages, console, context)

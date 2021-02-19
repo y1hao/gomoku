@@ -1,5 +1,9 @@
 package client
 
+import (
+	"fmt"
+)
+
 const (
 	titleH = 3
 	boardH = 16
@@ -35,8 +39,8 @@ type Console struct {
 func NewConsole(context *Context) *Console {
 	return &Console{
 		title: newTitle(0,0,0,0, context),
-		board: newBoard(),
-		message: newMessage(),
+		board: newBoard(0,0,0,0,context),
+		message: newMessage(0,0,0,0,context),
 		score: newScore(),
 		history: newHistory(),
 		control: newControl(),
@@ -44,8 +48,39 @@ func NewConsole(context *Context) *Console {
 	}
 }
 
-func (c *Console) DisplayStatus() {}
+func (c *Console) DrawAll() {
+	c.title.draw()
+	c.board.draw()
+	c.message.draw()
+	c.score.draw()
+	c.history.draw()
+	c.control.draw()
+	c.chat.draw()
+}
 
-func (c *Console) DisplayMessage(m string) {}
+func (c *Console) UpdateBoard() {
+	c.board.redraw()
+}
 
+func (c *Console) UpdateScore() {}
 
+func (c *Console) UpdateHistory() {}
+
+func (c *Console) UpdateChat() {}
+
+func (c *Console) UpdateInfo() {
+	c.message.redraw()
+}
+
+func (c *Console) DisplayMessage(m string) {
+	fmt.Println(m)
+}
+
+func (c *Console) DisplayError(m string) {
+	fmt.Println(m)
+}
+
+func (c *Console) DisplayFatal(m string) {
+	clear()
+	fmt.Println(m)
+}

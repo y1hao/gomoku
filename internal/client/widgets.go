@@ -1,5 +1,11 @@
 package client
 
+import (
+	"fmt"
+
+	"github.com/CoderYihaoWang/gomoku/internal/game"
+)
+
 type widget interface {
 	draw()
 	redraw()
@@ -21,37 +27,94 @@ func newTitle(row, col, height, width int, context *Context) *titleWidget {
 func (w *titleWidget) draw() {}
 func (w *titleWidget) redraw() {}
 
-type boardWidget struct {}
-func newBoard() *boardWidget {return nil}
+type boardWidget struct {
+	widgetBase
+}
+
+func newBoard(row, col, height, width int, context *Context) *boardWidget {
+	return &boardWidget{
+		widgetBase{row, col, height, width,context},
+	}
+}
 func (w *boardWidget) draw() {}
-func (w *boardWidget) redraw() {}
+func (w *boardWidget) redraw() {
+	printStatus(w.context.Game)
+}
 
-type messageWidget struct {}
-func newMessage() *messageWidget {return nil}
-func (w *messageWidget) draw() {}
-func (w *messageWidget) redraw() {}
+func printStatus(status *game.Game) {
+	if len(status.WinningPieces) != 0 {
+		fmt.Printf("%d wins!\n", status.WinningPieces[0].Player)
+		return
+	}
 
-type boxWidget struct {}
-func newBox() *boxWidget {return nil}
+	for i := range status.Board {
+		for j := range status.Board[i] {
+			fmt.Printf("%v ", status.Board[i][j])
+		}
+		fmt.Println()
+	}
+
+	if status.LastMove != nil {
+		fmt.Printf("Last move: %d: [%d, %d]\n",
+			status.LastMove.Player,
+			status.LastMove.Row,
+			status.LastMove.Col)
+	}
+}
+
+
+type messageWidget struct {
+	widgetBase
+}
+func newMessage(row, col, height, width int, context *Context) *messageWidget {
+	return &messageWidget{
+		widgetBase{row, col, height, width, context},
+	}
+}
+func (w *messageWidget) draw() {
+	fmt.Printf("You are: %d\n", w.context.Player)
+	if w.context.Game != nil {
+		fmt.Printf("%d's turn\n", w.context.Game.Player)
+	}
+}
+func (w *messageWidget) redraw() {
+	fmt.Printf("You are: %d\n", w.context.Player)
+	if w.context.Game != nil {
+		fmt.Printf("%d's turn\n", w.context.Game.Player)
+	}
+}
+
+type boxWidget struct {
+	widgetBase
+}
+
 func (w *boxWidget) draw() {}
 func (w *boxWidget) redraw() {}
 
 type scoreWidget struct {
 	boxWidget
 }
-func newScore() *scoreWidget {return nil}
+func newScore() *scoreWidget {
+	return &scoreWidget{}
+}
 
 type historyWidget struct {
-	*boxWidget
+	boxWidget
 }
-func newHistory() *historyWidget {return nil}
+func newHistory() *historyWidget {
+	return &historyWidget{}
+}
 
 type controlWidget struct {
-	*boxWidget
+	boxWidget
 }
-func newControl() *controlWidget {return nil}
+func newControl() *controlWidget {
+	return &controlWidget{}
+}
 
 type chatWidget struct {
-	*boxWidget
+	boxWidget
 }
-func newChat() *chatWidget {return nil}
+func newChat() *chatWidget {
+	return &chatWidget{}
+}

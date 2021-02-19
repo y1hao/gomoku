@@ -1,14 +1,15 @@
 package client
 
-import "github.com/CoderYihaoWang/gomoku/internal/game"
+import (
+	"github.com/CoderYihaoWang/gomoku/internal/game"
+)
 
 type Context struct {
-	AssignedPlayer game.Player
-	CurrentPlayer  game.Player
-	Status         *game.Game
+	Player         game.Player
+	Score1, Score2 int
+	Game           *game.Game
 	History        []*game.Piece
 	Chat           string
-	Score1, Score2 int
 }
 
 func NewContext() *Context {

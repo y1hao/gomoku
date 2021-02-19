@@ -43,7 +43,7 @@ func (handler *inputHandler) Run() {
 
 func (handler *inputHandler) validate(data string) bool {
 	// while waiting for rematch, only empty input is allowed
-	if handler.Context.Status.Winner != game.None {
+	if handler.Context.Game.Winner != game.None {
 		return len(data) == 0
 	}
 
@@ -82,7 +82,7 @@ func (handler *inputHandler) validate(data string) bool {
 
 func (handler *inputHandler) process(m string) (data []byte) {
 	// rematch
-	if handler.Context.Status.Winner != game.None {
+	if handler.Context.Game.Winner != game.None {
 		data, _ = json.Marshal(message.NewNextGame())
 		return
 	}
@@ -93,7 +93,7 @@ func (handler *inputHandler) process(m string) (data []byte) {
 
 	case strings.HasPrefix(m, "'") && strings.HasSuffix(m, "'"):
 		data, _ = json.Marshal(message.NewChat(&message.ChatMessage{
-			Sender:  handler.Context.AssignedPlayer,
+			Sender:  handler.Context.Player,
 			Message: m[1:len(m)-1],
 		}))
 
@@ -105,7 +105,7 @@ func (handler *inputHandler) process(m string) (data []byte) {
 		data, _ = json.Marshal(message.NewMove(&game.Piece{
 			Row:    row,
 			Col:    col,
-			Player: handler.Context.AssignedPlayer,
+			Player: handler.Context.Player,
 		}))
 	}
 	return data

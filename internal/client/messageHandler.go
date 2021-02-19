@@ -35,61 +35,58 @@ func (handler *MessageHandler) Run() {
 func (handler *MessageHandler) handleMessage(m *message.Message) {
 	switch m.Type {
 	case message.Chat:
-		m := m.ChatMessage
-		fmt.Printf("[%v] %d: %s\n", m.Time, m.Sender, m.Message)
+		chat := m.ChatMessage
+		handler.Console.UpdateChat()
+		fmt.Printf("[%v] %d: %s\n", chat.Time, chat.Sender, chat.Message)
 
 	case message.Status:
-		handler.Context.Status = m.Status
-		printStatus(m.Status)
-		//handler.Console.DisplayStatus()
+		handler.Context.Game = m.Status
+		handler.Console.UpdateBoard()
+		handler.Console.UpdateInfo()
 
-	case message.OpponentLeft:
-		fmt.Printf("Opponent left\n")
+		if m.Status.LastMove != nil {
+			handler.Context.History = append(handler.Context.History, m.Status.LastMove)
+		}
+		handler.Console.UpdateHistory()
+
+		switch m.Status.Winner {
+		case game.None:
+		case game.Draw:
+
+		case handler.Context.Player:
+			handler.Context.Score1++
+			handler.Console.DisplayMessage("WIN !!! (Rematch: <Enter>)")
+
+		default:
+			handler.Context.Score2++
+			handler.Console.DisplayError("LOSE... (Rematch: <Enter>)")
+		}
+		handler.Console.UpdateScore()
 
 	case message.InvitationCode:
-		fmt.Printf("Your invitation code is: %s\n", m.Info)
+		handler.Console.DisplayMessage(fmt.Sprintf("Your invitation code: %s", m.Info))
 
 	case message.InsufficientInvitationCode:
-		fmt.Printf("Insufficient invitation code\n")
-
-	case message.InvalidInvitationCode:
-		fmt.Printf("Invalid invitation code: %s\n", m.Info)
-
-	case message.InvalidMove:
-		fmt.Printf("Invalid move\n")
+		handler.Console.DisplayFatal("Sorry, too many players online at the moment.\nPlease try again later!")
 
 	case message.AssignPlayer:
 		p, _ := strconv.Atoi(m.Info)
-		handler.Context.AssignedPlayer = game.Player(p)
-		fmt.Printf("You are: %d\n", p)
+		handler.Context.Player = game.Player(p)
+		handler.Console.UpdateInfo()
+
+	case message.OpponentLeft:
+		handler.Console.DisplayError("Your opponent has left!")
+
+	case message.InvalidInvitationCode:
+		handler.Console.DisplayError("Invalid invitation code: %s")
+
+	case message.InvalidMove:
+		handler.Console.DisplayError("Invalid move")
 
 	case message.InvalidMessageFormat:
-		fmt.Printf("Invalid message format\n")
+		handler.Console.DisplayError("Invalid message format")
 
 	case message.InvalidOperation:
-		fmt.Printf("Invalid operation\n")
+		handler.Console.DisplayError("Invalid operation")
 	}
-}
-
-func printStatus(status *game.Game) {
-	if len(status.WinningPieces) != 0 {
-		fmt.Printf("%d wins!\n", status.WinningPieces[0].Player)
-		return
-	}
-
-	for i := range status.Board {
-		for j := range status.Board[i] {
-			fmt.Printf("%v ", status.Board[i][j])
-		}
-		fmt.Println()
-	}
-
-	if status.LastMove != nil {
-		fmt.Printf("Last move: %d: [%d, %d]\n",
-			status.LastMove.Player,
-			status.LastMove.Row,
-			status.LastMove.Col)
-	}
-
-	fmt.Printf("%d's turn\n", status.Player)
 }
