@@ -1,2 +1,2 @@
-.idea
-./cmd/tmp
+.idea/
+/cmd/tmp/
