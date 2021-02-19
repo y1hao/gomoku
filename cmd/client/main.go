@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/CoderYihaoWang/gomoku/internal/client"
 	"github.com/CoderYihaoWang/gomoku/internal/game"
 	"github.com/CoderYihaoWang/gomoku/internal/message"
 	"github.com/gorilla/websocket"
@@ -20,7 +21,7 @@ import (
 var addr = flag.String("addr", "localhost:8080", "http service address")
 var code = flag.Int("code", -1, "invitation code")
 
-var player game.Player
+var context = client.NewContext()
 
 func main() {
 	flag.Parse()
@@ -34,13 +35,15 @@ func main() {
 		u.Path = fmt.Sprintf("/ws/%d", *code)
 	}
 
-	log.Printf("connecting to %s", u.String())
-
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
 		log.Fatal("dial:", err)
 	}
 	defer c.Close()
+
+	inboundMessage := make(chan *message.Message)
+	messageHandler := client.NewMessageHandler(inboundMessage, context)
+	go messageHandler.Run()
 
 	done := make(chan struct{})
 	go func() {
@@ -56,7 +59,7 @@ func main() {
 			if err != nil {
 				continue
 			}
-			handleMessage(&m)
+			inboundMessage <-&m
 		}
 	}()
 
@@ -111,7 +114,7 @@ func formatMessage(m string) []byte {
 	switch fields[0] {
 	case "chat":
 		data, _ = json.Marshal(message.NewChat(&message.ChatMessage{
-			Sender:  player,
+			Sender:  context.AssignedPlayer,
 			Message: strings.Join(fields[1:], " "),
 		}))
 	case "move":
@@ -129,70 +132,10 @@ func formatMessage(m string) []byte {
 		data, _ = json.Marshal(message.NewMove(&game.Piece{
 			Row:    row,
 			Col:    col,
-			Player: player,
+			Player: context.AssignedPlayer,
 		}))
 	case "rematch":
 		data, _ = json.Marshal(message.NewNextGame())
 	}
 	return data
-}
-
-func handleMessage(m *message.Message) {
-	switch m.Type {
-	case message.Chat:
-		m := m.ChatMessage
-		fmt.Printf("[%v] %d: %s\n", m.Time, m.Sender, m.Message)
-
-	case message.Status:
-		printStatus(m.Status)
-
-	case message.OpponentLeft:
-		fmt.Printf("Opponent left\n")
-
-	case message.InvitationCode:
-		fmt.Printf("Your invitation code is: %s\n", m.Info)
-
-	case message.InsufficientInvitationCode:
-		fmt.Printf("Insufficient invitation code\n")
-
-	case message.InvalidInvitationCode:
-		fmt.Printf("Invalid invitation code: %s\n", m.Info)
-
-	case message.InvalidMove:
-		fmt.Printf("Invalid move\n")
-
-	case message.AssignPlayer:
-		p, _ := strconv.Atoi(m.Info)
-		player = game.Player(p)
-		fmt.Printf("You are: %d\n", player)
-
-	case message.InvalidMessageFormat:
-		fmt.Printf("Invalid message format\n")
-
-	case message.InvalidOperation:
-		fmt.Printf("Invalid operation\n")
-	}
-}
-
-func printStatus(status *game.Game) {
-	if len(status.WinningPieces) != 0 {
-		fmt.Printf("%d wins!\n", status.WinningPieces[0].Player)
-		return
-	}
-
-	for i := range status.Board {
-		for j := range status.Board[i] {
-			fmt.Printf("%v ", status.Board[i][j])
-		}
-		fmt.Println()
-	}
-
-	if status.LastMove != nil {
-		fmt.Printf("Last move: %d: [%d, %d]\n",
-			status.LastMove.Player,
-			status.LastMove.Row,
-			status.LastMove.Col)
-	}
-
-	fmt.Printf("%d's turn\n", status.Player)
 }
