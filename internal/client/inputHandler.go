@@ -11,6 +11,8 @@ import (
 	"github.com/CoderYihaoWang/gomoku/internal/message"
 )
 
+const ExitInput = "exit"
+
 type inputHandler struct {
 	Input chan []byte
 	Exit chan struct{}
@@ -31,46 +33,80 @@ func (handler *inputHandler) Run() {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		data := strings.TrimSpace(string(scanner.Bytes()))
-		if len(data) == 0 {
+		if !handler.validate(data) {
+			handler.Console.DisplayMessage("Invalid input!")
 			continue
 		}
-		handler.Input <- handler.formatMessage(data)
+		handler.Input <-handler.process(data)
 	}
 }
 
-func (handler *inputHandler) formatMessage(m string) []byte {
-	fields := strings.Split(m, " ")
-	if len(fields) < 1 {
-		return nil
+func (handler *inputHandler) validate(data string) bool {
+	// while waiting for rematch, only empty input is allowed
+	if handler.Context.Status.Winner != game.None {
+		return len(data) == 0
 	}
-	var data []byte
-	switch fields[0] {
-	case "exit":
+
+	// otherwise empty string is false
+	if len(data) == 0 {
+		return false
+	}
+
+	// 'exit'
+	if data == ExitInput {
+		return true
+	}
+
+	// chat
+	if strings.HasPrefix(data, "'") && strings.HasSuffix(data, "'") {
+		return true
+	}
+
+	// move e.g. h8
+	if len(data) < 2 || len(data) > 3 {
+		return false
+	}
+	col := data[0]
+	if col < 'a' || col > 'o' {
+		return false
+	}
+	row, err := strconv.Atoi(data[1:])
+	if err != nil {
+		return false
+	}
+	if row < 1 || row > 15 {
+		return false
+	}
+	return true
+}
+
+func (handler *inputHandler) process(m string) (data []byte) {
+	// rematch
+	if handler.Context.Status.Winner != game.None {
+		data, _ = json.Marshal(message.NewNextGame())
+		return
+	}
+
+	switch {
+	case m == ExitInput:
 		close(handler.Exit)
-	case "chat":
+
+	case strings.HasPrefix(m, "'") && strings.HasSuffix(m, "'"):
 		data, _ = json.Marshal(message.NewChat(&message.ChatMessage{
 			Sender:  handler.Context.AssignedPlayer,
-			Message: strings.Join(fields[1:], " "),
+			Message: m[1:len(m)-1],
 		}))
-	case "move":
-		if len(fields) < 3 {
-			break
-		}
-		row, err := strconv.Atoi(fields[1])
-		if err != nil {
-			break
-		}
-		col, err := strconv.Atoi(fields[2])
-		if err != nil {
-			break
-		}
+
+	default:
+		l, d := m[0], m[1:]
+		row, _ := strconv.Atoi(d)
+		row--
+		col := int(l-'a')
 		data, _ = json.Marshal(message.NewMove(&game.Piece{
 			Row:    row,
 			Col:    col,
 			Player: handler.Context.AssignedPlayer,
 		}))
-	case "rematch":
-		data, _ = json.Marshal(message.NewNextGame())
 	}
 	return data
 }

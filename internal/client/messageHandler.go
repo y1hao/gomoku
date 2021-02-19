@@ -39,6 +39,7 @@ func (handler *MessageHandler) handleMessage(m *message.Message) {
 		fmt.Printf("[%v] %d: %s\n", m.Time, m.Sender, m.Message)
 
 	case message.Status:
+		handler.Context.Status = m.Status
 		printStatus(m.Status)
 		//handler.Console.DisplayStatus()
 
