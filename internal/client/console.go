@@ -1,5 +1,7 @@
 package client
 
+import "fmt"
+
 const (
 	titleH   = 3
 	boardH   = 16
@@ -16,6 +18,7 @@ const (
 	scoreR   = boardR
 	historyR = scoreR + scoreH
 	controlR = historyR + historyH
+	inputR   = messageR + messageH
 
 	titleW   = 50
 	boardW   = 35
@@ -61,7 +64,7 @@ func (c *Console) Clear() {
 }
 
 func (c *Console) DrawAll() {
-	c.Clear()
+	clear()
 	c.title.Draw()
 	c.board.Draw()
 	c.message.Draw()
@@ -69,45 +72,59 @@ func (c *Console) DrawAll() {
 	c.history.Draw()
 	c.control.Draw()
 	c.chat.Draw()
+	c.WaitForInput()
+}
+
+func (c *Console) WaitForInput() {
+	setPosition(inputR, 1)
+	fmt.Print("> ")
 }
 
 func (c *Console) UpdateGame() {
 	c.board.Redraw()
 	c.message.Redraw()
+	c.WaitForInput()
 }
 
 func (c *Console) UpdateScore() {
 	c.score.Redraw()
+	c.WaitForInput()
 }
 
 func (c *Console) UpdateHistory() {
 	c.history.Redraw()
+	c.WaitForInput()
 }
 
 func (c *Console) UpdateChat() {
 	c.chat.Redraw()
+	c.WaitForInput()
 }
 
 func (c *Console) UpdateInfo(m string) {
 	c.message.level = info
 	c.message.context.Message = m
 	c.message.Redraw()
+	c.WaitForInput()
 }
 
 func (c *Console) UpdateError(m string) {
 	c.message.level = error
 	c.message.context.Message = m
 	c.message.Redraw()
+	c.WaitForInput()
 }
 
 func (c *Console) UpdateWin(m string) {
 	c.message.level = win
 	c.message.context.Message = m
 	c.message.Redraw()
+	c.WaitForInput()
 }
 
 func (c *Console) UpdateLose(m string) {
 	c.message.level = lose
 	c.message.context.Message = m
 	c.message.Redraw()
+	c.WaitForInput()
 }

@@ -22,7 +22,7 @@ const (
 	errorF, errorB         = redF, redB
 	youF, youB             = greenF, greenB
 	oppF, oppB             = magentaF, magentaB
-	hightlightF, highlightB               = yellowF, yellowB
+	highlightF, highlightB               = yellowF, yellowB
 )
 
 type color int

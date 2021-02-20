@@ -7,6 +7,7 @@ import (
 type BoardWidget struct {
 	WidgetBase
 	context *Context
+	lastMove game.Piece
 }
 
 func NewBoardWidget(row, col, height, width int, context *Context) *BoardWidget {
@@ -27,6 +28,7 @@ func (w *BoardWidget) Draw() {
 
 func (w *BoardWidget) Redraw() {
 	w.printLastMove()
+
 }
 
 func (w *BoardWidget) printEmptyBoard() {
@@ -64,4 +66,8 @@ func (w *BoardWidget) printLastMove() {
 	} else {
 		print(whiteF, yellowB, "⬤")
 	}
+}
+
+func (w *BoardWidget) printHighLight() {
+
 }
