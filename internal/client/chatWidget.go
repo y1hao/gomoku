@@ -5,7 +5,7 @@ type ChatWidget struct {
 	context *Context
 }
 
-func NewChat(row, col, height, width int, context *Context) *ChatWidget {
+func NewChatWidget(row, col, height, width int, context *Context) *ChatWidget {
 	return &ChatWidget{
 		BoxWidget: BoxWidget{
 			WidgetBase: WidgetBase{

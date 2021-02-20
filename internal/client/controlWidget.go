@@ -4,7 +4,7 @@ type ControlWidget struct {
 	BoxWidget
 }
 
-func NewControl(row, col, height, width int) *ControlWidget {
+func NewControlWidget(row, col, height, width int) *ControlWidget {
 	return &ControlWidget{
 		BoxWidget: BoxWidget{
 			WidgetBase: WidgetBase{

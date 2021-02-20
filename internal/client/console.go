@@ -46,13 +46,13 @@ type Console struct {
 
 func NewConsole(context *Context) *Console {
 	return &Console{
-		title:   NewTitle(titleR, titleC, titleH, titleW),
-		board:   NewBoard(boardR, boardC, boardH, boardW, context),
+		title:   NewTitleWidget(titleR, titleC, titleH, titleW),
+		board:   NewBoardWidget(boardR, boardC, boardH, boardW, context),
 		message: NewMessage(messageR, messageC, messageH, messageW, context),
-		score:   NewScore(scoreR, scoreC, scoreH, scoreW, context),
-		history: NewHistory(historyR, historyC, historyH, historyW, context),
-		control: NewControl(controlR, controlC, controlH, controlW),
-		chat:    NewChat(chatR, chatC, chatH, chatW, context),
+		score:   NewScoreWidget(scoreR, scoreC, scoreH, scoreW, context),
+		history: NewHistoryWidget(historyR, historyC, historyH, historyW, context),
+		control: NewControlWidget(controlR, controlC, controlH, controlW),
+		chat:    NewChatWidget(chatR, chatC, chatH, chatW, context),
 	}
 }
 

@@ -5,7 +5,7 @@ type HistoryWidget struct {
 	context *Context
 }
 
-func NewHistory(row, col, height, width int, context *Context) *HistoryWidget {
+func NewHistoryWidget(row, col, height, width int, context *Context) *HistoryWidget {
 	return &HistoryWidget{
 		BoxWidget: BoxWidget{
 			WidgetBase: WidgetBase{

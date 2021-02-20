@@ -5,7 +5,7 @@ type ScoreWidget struct {
 	context *Context
 }
 
-func NewScore(row, col, height, width int, context *Context) *ScoreWidget {
+func NewScoreWidget(row, col, height, width int, context *Context) *ScoreWidget {
 	return &ScoreWidget{
 		BoxWidget: BoxWidget{
 			WidgetBase: WidgetBase{

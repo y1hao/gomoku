@@ -8,7 +8,7 @@ type TitleWidget struct {
 	WidgetBase
 }
 
-func NewTitle(row, col, height, width int) *TitleWidget {
+func NewTitleWidget(row, col, height, width int) *TitleWidget {
 	return &TitleWidget{
 		WidgetBase{
 			row:     row,
@@ -45,4 +45,3 @@ func (w *TitleWidget) Draw()   {
 	setPosition(w.row+2, w.col)
 	printf(infoF, mainB, "%s%s%s", "╚", strings.Repeat("═", w.width-2), "╝")
 }
-

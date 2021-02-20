@@ -9,7 +9,7 @@ type BoardWidget struct {
 	context *Context
 }
 
-func NewBoard(row, col, height, width int, context *Context) *BoardWidget {
+func NewBoardWidget(row, col, height, width int, context *Context) *BoardWidget {
 	return &BoardWidget{
 		WidgetBase: WidgetBase{
 			row: row,
