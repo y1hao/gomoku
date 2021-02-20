@@ -2,6 +2,7 @@ package client
 
 import (
 	"github.com/CoderYihaoWang/gomoku/internal/game"
+	"github.com/CoderYihaoWang/gomoku/internal/message"
 )
 
 type level int
@@ -19,7 +20,7 @@ type Context struct {
 	Score1, Score2 int
 	Game           *game.Game
 	History        []*game.Piece
-	Chat           string
+	Chat           []*message.ChatMessage
 	Message string
 	Level level
 }
@@ -27,6 +28,7 @@ type Context struct {
 func NewContext() *Context {
 	return &Context{
 		History: make([]*game.Piece, 0),
+		Chat: make([]*message.ChatMessage, 0),
 		Game:    game.New(),
 	}
 }

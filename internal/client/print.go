@@ -73,5 +73,5 @@ func clear() {
 }
 
 func clearToEnd() {
-	fmt.Print("\033[0K")
+	fmt.Print("\033[J")
 }

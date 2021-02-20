@@ -40,9 +40,8 @@ func (handler *MessageHandler) handleMessage(m *message.Message) {
 	case message.Chat:
 		handler.Console.ClearMessage()
 
-		chat := m.ChatMessage
+		handler.Context.Chat = append(handler.Context.Chat, m.ChatMessage)
 		handler.Console.UpdateChat()
-		fmt.Printf("[%v] %d: %s\n", chat.Time, chat.Sender, chat.Message)
 
 	case message.Status:
 		handler.Console.ClearMessage()
