@@ -3,6 +3,7 @@ package client
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/CoderYihaoWang/gomoku/internal/game"
 	"github.com/CoderYihaoWang/gomoku/internal/message"
@@ -72,7 +73,8 @@ func (handler *MessageHandler) handleMessage(m *message.Message) {
 		handler.Console.UpdateScore()
 
 	case message.InvitationCode:
-		handler.Console.UpdateInfo(fmt.Sprintf("Your invitation code: %s", m.Info))
+		code, _ := strconv.Atoi(strings.TrimSpace(m.Info))
+		handler.Console.UpdateInfo(fmt.Sprintf("Your invitation code: %04d", code))
 
 	case message.InsufficientInvitationCode:
 		handler.Fatal <- []byte("insufficient invitation code")

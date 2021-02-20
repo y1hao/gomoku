@@ -1,6 +1,7 @@
 package client
 
 import (
+	"fmt"
 	"github.com/CoderYihaoWang/gomoku/internal/game"
 	"strings"
 )
@@ -59,4 +60,18 @@ func (w *MessageWidget) Redraw() {
 		print(blackF, mainB, "⬤")
 	}
 	print(infoF, mainB, "'s turn")
+
+	setPosition(w.row, w.col+len("You play O "))
+	var fg, bg color
+	switch w.level {
+	case info:
+		fg, bg = infoF, secondaryB
+	case error:
+		fg, bg = infoF, errorB
+	case win:
+		fg, bg = infoF, winB
+	}
+	print(fg, bg,
+		fmt.Sprintf(fmt.Sprintf(" %%-%ds", w.width-len(" You play O ")-len(" O's turn")),
+		w.context.Message))
 }
