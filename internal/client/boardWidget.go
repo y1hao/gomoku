@@ -27,8 +27,13 @@ func (w *BoardWidget) Draw() {
 }
 
 func (w *BoardWidget) Redraw() {
-	w.clearHighLight()
+	if w.lastMove != nil {
+		w.clearHighLight(w.lastMove)
+	}
 	w.printLastMove()
+	if len(w.context.Game.WinningPieces) != 0 {
+		w.highlightWinning()
+	}
 }
 
 func (w *BoardWidget) printEmptyBoard() {
@@ -61,30 +66,45 @@ func (w *BoardWidget) printLastMove() {
 	w.lastMove = move
 	r, c := w.getPiecePosition(move)
 
-	setPosition(r, c-1)
-	print(greenF, yellowB, "[")
+	setPosition(r, c)
 	if move.Player == game.Black {
 		print(blackF, yellowB, "⬤")
 	} else {
 		print(whiteF, yellowB, "⬤")
 	}
-	print(greenF, yellowB, "]")
+
+	w.setHighLight(greenF, move)
 }
 
-func (w *BoardWidget) clearHighLight() {
+func (w *BoardWidget) setHighLight(color color, p *game.Piece) {
+	r, c := w.getPiecePosition(p)
+	setPosition(r, c-1)
+	print(color, yellowB, "[")
+
+	setPosition(r, c+1)
+	print(color, yellowB, "]")
+}
+
+func (w *BoardWidget) highlightWinning() {
 	pushPosition()
 	defer popPosition()
 
-	if w.lastMove == nil {
-		return
+	for _, move := range w.context.Game.WinningPieces {
+		w.setHighLight(redF, move)
 	}
-	r, c := w.getPiecePosition(w.lastMove)
+}
+
+func (w *BoardWidget) clearHighLight(p *game.Piece) {
+	pushPosition()
+	defer popPosition()
+
+	r, c := w.getPiecePosition(p)
 
 	setPosition(r, c-1)
-	if w.lastMove.Col == 0 {
+	if p.Col == 0 {
 		printDim(infoF, yellowB, " ")
 	} else {
-		if w.lastMove.Row == 0 || w.lastMove.Row == 14  {
+		if p.Row == 0 || p.Row == 14  {
 			printDim(infoF, yellowB, "═")
 		} else {
 			printDim(infoF, yellowB, "─")
@@ -92,10 +112,10 @@ func (w *BoardWidget) clearHighLight() {
 	}
 
 	setPosition(r, c+1)
-	if w.lastMove.Col == 14 {
+	if p.Col == 14 {
 		printDim(infoF, yellowB, " ")
 	} else {
-		if w.lastMove.Row == 0 || w.lastMove.Row == 14  {
+		if p.Row == 0 || p.Row == 14  {
 			printDim(infoF, yellowB, "═")
 		} else {
 			printDim(infoF, yellowB, "─")

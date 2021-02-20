@@ -80,6 +80,12 @@ func (c *Console) WaitForInput() {
 	fmt.Print("> ")
 }
 
+func (c *Console) NewGame() {
+	c.board.Draw()
+	c.message.Redraw()
+	c.WaitForInput()
+}
+
 func (c *Console) UpdateGame() {
 	c.board.Redraw()
 	c.message.Redraw()

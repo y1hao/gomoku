@@ -57,6 +57,9 @@ func (handler *MessageHandler) handleMessage(m *message.Message) {
 		switch m.Status.Winner {
 		case game.None:
 		case game.Draw:
+			handler.Context.Score1++
+			handler.Context.Score2++
+			handler.Console.UpdateInfo("DRAW... (Rematch: <Enter>)")
 
 		case handler.Context.Player:
 			handler.Context.Score1++
@@ -82,7 +85,7 @@ func (handler *MessageHandler) handleMessage(m *message.Message) {
 
 		p, _ := strconv.Atoi(m.Info)
 		handler.Context.Player = game.Player(p)
-		handler.Console.UpdateGame()
+		handler.Console.NewGame()
 
 	case message.OpponentLeft:
 		handler.Console.UpdateError("Your opponent has left!")
