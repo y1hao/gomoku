@@ -111,6 +111,13 @@ func (c *Console) UpdateChat() {
 	c.WaitForInput()
 }
 
+func (c *Console) ClearMessage() {
+	c.context.Level = none
+	c.context.Message = ""
+	c.message.Redraw()
+	c.WaitForInput()
+}
+
 func (c *Console) UpdateInfo(m string) {
 	c.context.Level = info
 	c.context.Message = m

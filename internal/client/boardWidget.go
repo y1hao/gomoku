@@ -79,10 +79,10 @@ func (w *BoardWidget) printLastMove() {
 func (w *BoardWidget) setHighLight(color color, p *game.Piece) {
 	r, c := w.getPiecePosition(p)
 	setPosition(r, c-1)
-	print(color, yellowB, "[")
+	printBold(color, yellowB, "[")
 
 	setPosition(r, c+1)
-	print(color, yellowB, "]")
+	printBold(color, yellowB, "]")
 }
 
 func (w *BoardWidget) highlightWinning() {

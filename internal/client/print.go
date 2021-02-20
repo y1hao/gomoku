@@ -34,6 +34,7 @@ func popPosition()             { fmt.Print("\033[u") }
 func setPosition(row, col int) { fmt.Printf("\033[%d;%dH", row, col) }
 func setColor(fg, bg color)    { fmt.Printf("\033[%d;%dm", fg, bg) }
 func setDimColor(fg, bg color) { fmt.Printf("\033[2;%d;%dm", fg, bg) }
+func setBoldColor(fg, bg color) { fmt.Printf("\033[1;%d;%dm", fg, bg) }
 func resetColor()              { fmt.Printf("\033[m") }
 
 func print(fg, bg color, m string) {
@@ -48,12 +49,22 @@ func printDim(fg, bg color, m string) {
 	fmt.Print(m)
 }
 
+func printBold(fg, bg color, m string) {
+	setBoldColor(fg, bg)
+	defer resetColor()
+	fmt.Print(m)
+}
+
 func printf(fg, bg color, format string, a ...interface{}) {
 	print(fg, bg, fmt.Sprintf(format, a...))
 }
 
 func printDimf(fg, bg color, format string, a ...interface{}) {
 	printDim(fg, bg, fmt.Sprintf(format, a...))
+}
+
+func printBoldf(fg, bg color, format string, a ...interface{}) {
+	printBold(fg, bg, fmt.Sprintf(format, a...))
 }
 
 func clear() {

@@ -38,14 +38,14 @@ func (handler *MessageHandler) Run() {
 func (handler *MessageHandler) handleMessage(m *message.Message) {
 	switch m.Type {
 	case message.Chat:
-		handler.Console.UpdateInfo("")
+		handler.Console.ClearMessage()
 
 		chat := m.ChatMessage
 		handler.Console.UpdateChat()
 		fmt.Printf("[%v] %d: %s\n", chat.Time, chat.Sender, chat.Message)
 
 	case message.Status:
-		handler.Console.UpdateInfo("")
+		handler.Console.ClearMessage()
 
 		handler.Context.Game = m.Status
 		handler.Console.UpdateGame()
@@ -83,7 +83,7 @@ func (handler *MessageHandler) handleMessage(m *message.Message) {
 		handler.Fatal <- []byte("invalid invitation code")
 
 	case message.AssignPlayer:
-		handler.Console.UpdateInfo("")
+		handler.Console.ClearMessage()
 
 		p, _ := strconv.Atoi(m.Info)
 		handler.Context.Player = game.Player(p)

@@ -9,7 +9,6 @@ import (
 type MessageWidget struct {
 	WidgetBase
 	context *Context
-	level level
 }
 
 func NewMessage(row, col, height, width int, context *Context) *MessageWidget {
@@ -57,14 +56,23 @@ func (w *MessageWidget) Redraw() {
 
 	setPosition(w.row, w.col+len(" You play O "))
 	var fg, bg color
-	switch w.level {
+	switch w.context.Level {
+	case none:
+		fg, bg = infoF, mainB
+
 	case info:
 		fg, bg = infoF, secondaryB
+
 	case error:
 		fg, bg = infoF, errorB
+
 	case win:
 		fg, bg = infoF, winB
+
+	case lose:
+		fg, bg = infoF, loseB
 	}
+
 	print(fg, bg,
 		fmt.Sprintf(fmt.Sprintf(" %%-%ds", w.width-1-len(" You play O ")-len(" O's turn ")),
 		w.context.Message))

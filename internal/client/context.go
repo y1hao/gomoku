@@ -7,7 +7,8 @@ import (
 type level int
 
 const (
-	info = iota
+	none = iota
+	info
 	error
 	win
 	lose
