@@ -23,12 +23,37 @@ func NewBoard(row, col, height, width int, context *Context) *BoardWidget {
 }
 
 func (w *BoardWidget) Draw() {
-	printStatus(w.context.Game)
+	pushPosition()
+	defer popPosition()
+
+	w.printEmptyBoard()
+	//printStatus(w.context.Game)
 }
 
 func (w *BoardWidget) Redraw() {
-	printStatus(w.context.Game)
+	pushPosition()
+	defer popPosition()
+
+	w.printEmptyBoard()
+	//printStatus(w.context.Game)
 }
+
+func (w *BoardWidget) printEmptyBoard() {
+	setPosition(w.row, w.col)
+	printDim(infoF, yellowB, "15 ╔═╤═╤═╤═╤═╤═╤═╤═╤═╤═╤═╤═╤═╤═╗ ")
+	for i := 1; i < w.height-1; i++ {
+		setPosition(w.row+i, w.col)
+		printDimf(infoF, yellowB, "%2d", 15-i)
+		printDim(infoF, yellowB, " ╟─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─┼─╢ ")
+
+	}
+	setPosition(w.row+w.height-2, w.col)
+	printDim(infoF, yellowB, " 1 ╚═╧═╧═╧═╧═╧═╧═╧═╧═╧═╧═╧═╧═╧═╝ ")
+
+	setPosition(w.row+w.height-1, w.col)
+	printDim(infoF, yellowB, "   a b c d e f g h i j k l m n o ")
+}
+
 
 func printStatus(status *game.Game) {
 	if status == nil {

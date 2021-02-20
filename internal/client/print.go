@@ -22,7 +22,7 @@ const (
 	errorF, errorB         = redF, redB
 	youF, youB             = greenF, greenB
 	oppF, oppB             = magentaF, magentaB
-	bgF, bgB               = yellowF, yellowB
+	hightlightF, highlightB               = yellowF, yellowB
 )
 
 type color int
@@ -46,12 +46,12 @@ func printDim(fg, bg color, m string) {
 	fmt.Print(m)
 }
 
-func printf(fg, bg color, m string, a ...interface{}) {
-	print(fg, bg, fmt.Sprintf(m, a...))
+func printf(fg, bg color, format string, a ...interface{}) {
+	print(fg, bg, fmt.Sprintf(format, a...))
 }
 
-func printDimf(fg, bg color, m string, a ...interface{}) {
-	printDim(fg, bg, fmt.Sprintf(m, a...))
+func printDimf(fg, bg color, format string, a ...interface{}) {
+	printDim(fg, bg, fmt.Sprintf(format, a...))
 }
 
 func clear() {
