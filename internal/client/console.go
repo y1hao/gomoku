@@ -8,22 +8,34 @@ const (
 	titleH   = 3
 	boardH   = 16
 	chatH    = 7
-	infoH    = 1
+	messageH = 1
 	scoreH   = 4
 	historyH = 5
 	controlH = 7
 
-	titleR   = 0
+	titleR   = 1
 	boardR   = titleR + titleH
 	chatR    = boardR + boardH
-	infoR    = chatR + chatH
+	messageR = chatR + chatH
 	scoreR   = boardR
 	historyR = scoreR + scoreH
 	controlR = historyR + historyH
 
-	boardC = 0
-	sideC  = 35
-	endC   = 51
+	titleW   = 50
+	boardW   = 35
+	scoreW   = titleW - boardW
+	historyW = scoreW
+	controlW = scoreW
+	chatW    = titleW
+	messageW = titleW
+
+	titleC   = 1
+	boardC   = titleC
+	messageC = titleC
+	chatC    = titleC
+	scoreC   = titleC + boardW
+	historyC = scoreC
+	controlC = scoreC
 )
 
 type Console struct {
@@ -38,13 +50,13 @@ type Console struct {
 
 func NewConsole(context *Context) *Console {
 	return &Console{
-		title:   NewTitle(titleR, 0, 0, 0, context),
-		board:   NewBoard(boardR, 0, 0, 0, context),
-		message: NewMessage(0, 0, 0, 0, context),
-		score:   NewScore(0, 0, 0, 0, context),
-		history: NewHistory(0, 0, 0, 0, context),
-		control: NewControl(0, 0, 0, 0, context),
-		chat:    NewChat(0, 0, 0, 0, context),
+		title:   NewTitle(titleR, titleC, titleH, titleW, context),
+		board:   NewBoard(boardR, boardC, boardH, boardW, context),
+		message: NewMessage(messageR, messageC, messageH, messageW, context),
+		score:   NewScore(scoreR, scoreC, scoreH, scoreW, context),
+		history: NewHistory(historyR, historyC, historyH, historyW, context),
+		control: NewControl(controlR, controlC, controlH, controlW, context),
+		chat:    NewChat(chatR, chatC, chatH, chatW, context),
 	}
 }
 

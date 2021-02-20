@@ -1,10 +1,5 @@
 package client
 
-type Widget interface {
-	Draw()
-	Redraw()
-}
-
 type WidgetBase struct {
 	row, col, height, width int
 	context                 *Context
