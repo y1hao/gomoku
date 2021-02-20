@@ -4,6 +4,15 @@ import (
 	"github.com/CoderYihaoWang/gomoku/internal/game"
 )
 
+type level int
+
+const (
+	info = iota
+	error
+	win
+	lose
+)
+
 type Context struct {
 	Player         game.Player
 	Score1, Score2 int
@@ -11,6 +20,7 @@ type Context struct {
 	History        []*game.Piece
 	Chat           string
 	Message string
+	Level level
 }
 
 func NewContext() *Context {

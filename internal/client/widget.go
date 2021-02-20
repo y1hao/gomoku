@@ -5,9 +5,17 @@ import (
 	"strings"
 )
 
+type Widget interface {
+	Draw()
+	Redraw()
+}
+
 type WidgetBase struct {
 	row, col, height, width int
 }
+
+func (w *WidgetBase) Draw() {}
+func (w *WidgetBase) Redraw() {}
 
 type BoxWidget struct {
 	WidgetBase

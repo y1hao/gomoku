@@ -39,13 +39,14 @@ const (
 )
 
 type Console struct {
-	title   *TitleWidget
-	board   *BoardWidget
-	message *MessageWidget
-	score   *ScoreWidget
-	history *HistoryWidget
-	control *ControlWidget
-	chat    *ChatWidget
+	title   Widget
+	board   Widget
+	message Widget
+	score   Widget
+	history Widget
+	control Widget
+	chat    Widget
+	context *Context
 }
 
 func NewConsole(context *Context) *Console {
@@ -57,6 +58,7 @@ func NewConsole(context *Context) *Console {
 		history: NewHistoryWidget(historyR, historyC, historyH, historyW, context),
 		control: NewControlWidget(controlR, controlC, controlH, controlW),
 		chat:    NewChatWidget(chatR, chatC, chatH, chatW, context),
+		context: context,
 	}
 }
 
@@ -110,29 +112,29 @@ func (c *Console) UpdateChat() {
 }
 
 func (c *Console) UpdateInfo(m string) {
-	c.message.level = info
-	c.message.context.Message = m
+	c.context.Level = info
+	c.context.Message = m
 	c.message.Redraw()
 	c.WaitForInput()
 }
 
 func (c *Console) UpdateError(m string) {
-	c.message.level = error
-	c.message.context.Message = m
+	c.context.Level = error
+	c.context.Message = m
 	c.message.Redraw()
 	c.WaitForInput()
 }
 
 func (c *Console) UpdateWin(m string) {
-	c.message.level = win
-	c.message.context.Message = m
+	c.context.Level = win
+	c.context.Message = m
 	c.message.Redraw()
 	c.WaitForInput()
 }
 
 func (c *Console) UpdateLose(m string) {
-	c.message.level = lose
-	c.message.context.Message = m
+	c.context.Level = lose
+	c.context.Message = m
 	c.message.Redraw()
 	c.WaitForInput()
 }

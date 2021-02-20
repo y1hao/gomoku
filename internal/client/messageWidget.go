@@ -6,15 +6,6 @@ import (
 	"strings"
 )
 
-const (
-	info = iota
-	error
-	win
-	lose
-)
-
-type level int
-
 type MessageWidget struct {
 	WidgetBase
 	context *Context
