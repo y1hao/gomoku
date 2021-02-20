@@ -5,20 +5,20 @@ import "fmt"
 const (
 	titleH   = 3
 	boardH   = 16
-	chatH    = 7
+	chatH    = 5
 	messageH = 1
 	scoreH   = 4
 	historyH = 5
 	controlH = 7
 
 	titleR   = 1
-	boardR   = titleR + titleH
-	chatR    = boardR + boardH
-	messageR = chatR + chatH
+	boardR   = titleR + titleH + 1
+	chatR    = boardR + boardH + 1
+	messageR = chatR + chatH + 1
 	scoreR   = boardR
 	historyR = scoreR + scoreH
 	controlR = historyR + historyH
-	inputR   = messageR + messageH
+	inputR   = messageR + messageH + 1
 
 	titleW   = 50
 	boardW   = 35
@@ -28,7 +28,7 @@ const (
 	chatW    = titleW
 	messageW = titleW
 
-	titleC   = 1
+	titleC   = 5
 	boardC   = titleC
 	messageC = titleC
 	chatC    = titleC

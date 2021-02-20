@@ -14,7 +14,7 @@ func NewHistoryWidget(row, col, height, width int, context *Context) *HistoryWid
 				height: height,
 				width: width,
 			},
-			title: "HistoryWidget",
+			title: "History",
 		},
 		context: context,
 	}

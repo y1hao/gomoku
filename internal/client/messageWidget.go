@@ -1,7 +1,8 @@
 package client
 
 import (
-	"fmt"
+	"github.com/CoderYihaoWang/gomoku/internal/game"
+	"strings"
 )
 
 const (
@@ -32,17 +33,30 @@ func NewMessage(row, col, height, width int, context *Context) *MessageWidget {
 }
 
 func (w *MessageWidget) Draw() {
-	fmt.Printf("You are: %d\n", w.context.Player)
-	if w.context.Game != nil {
-		fmt.Printf("%d's turn\n", w.context.Game.Player)
-	}
-	fmt.Printf("message: %s\n", w.context.Message)
+	pushPosition()
+	defer popPosition()
+
+	setPosition(w.row, w.col)
+	print(infoF, mainB, strings.Repeat(" ", w.width))
 }
 
 func (w *MessageWidget) Redraw() {
-	fmt.Printf("You are: %d\n", w.context.Player)
-	if w.context.Game != nil {
-		fmt.Printf("%d's turn\n", w.context.Game.Player)
+	pushPosition()
+	defer popPosition()
+
+	setPosition(w.row, w.col+1)
+	print(infoF, mainB, "You play ")
+	if w.context.Player == game.White {
+		print(whiteF, mainB, "⬤")
+	} else if w.context.Player == game.Black {
+		print(blackF, mainB, "⬤")
 	}
-	fmt.Printf("message: %s\n", w.context.Message)
+
+	setPosition(w.row, w.col+w.width-len("O's turn"))
+	if w.context.Game.Player == game.White {
+		print(whiteF, mainB, "⬤")
+	} else if w.context.Game.Player == game.Black {
+		print(blackF, mainB, "⬤")
+	}
+	print(infoF, mainB, "'s turn")
 }

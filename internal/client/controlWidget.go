@@ -13,7 +13,7 @@ func NewControlWidget(row, col, height, width int) *ControlWidget {
 				height: height,
 				width: width,
 			},
-			title: "ControlWidget",
+			title: "Control",
 		},
 	}
 }

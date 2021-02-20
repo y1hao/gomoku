@@ -14,7 +14,7 @@ func NewChatWidget(row, col, height, width int, context *Context) *ChatWidget {
 				height: height,
 				width: width,
 			},
-			title: "ChatWidget",
+			title: "Chat",
 		},
 		context: context,
 	}

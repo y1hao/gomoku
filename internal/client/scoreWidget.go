@@ -14,7 +14,7 @@ func NewScoreWidget(row, col, height, width int, context *Context) *ScoreWidget 
 				height: height,
 				width: width,
 			},
-			title: "ScoreWidget",
+			title: "Score",
 		},
 		context: context,
 	}
