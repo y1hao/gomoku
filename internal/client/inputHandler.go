@@ -42,9 +42,9 @@ func (handler *inputHandler) Run() {
 }
 
 func (handler *inputHandler) validate(data string) bool {
-	// while waiting for rematch, only empty input is allowed
-	if handler.Context.Game.Winner != game.None {
-		return len(data) == 0
+	// while waiting for rematch, allow empty input for rematch
+	if handler.Context.Game.Winner != game.None && len(data) == 0 {
+		return true
 	}
 
 	// otherwise empty string is false
@@ -82,7 +82,7 @@ func (handler *inputHandler) validate(data string) bool {
 
 func (handler *inputHandler) process(m string) (data []byte) {
 	// rematch
-	if handler.Context.Game.Winner != game.None {
+	if handler.Context.Game.Winner != game.None && len(m) == 0 {
 		data, _ = json.Marshal(message.NewNextGame())
 		return
 	}
