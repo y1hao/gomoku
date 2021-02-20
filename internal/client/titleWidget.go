@@ -4,23 +4,22 @@ import (
 	"strings"
 )
 
-type Title struct {
+type TitleWidget struct {
 	WidgetBase
 }
 
-func NewTitle(row, col, height, width int, context *Context) *Title {
-	return &Title{
+func NewTitle(row, col, height, width int) *TitleWidget {
+	return &TitleWidget{
 		WidgetBase{
 			row:     row,
 			col:     col,
 			height:  height,
 			width:   width,
-			context: context,
 		},
 	}
 }
 
-func (w *Title) Draw()   {
+func (w *TitleWidget) Draw()   {
 	pushPosition()
 	defer popPosition()
 

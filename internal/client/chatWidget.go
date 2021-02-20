@@ -1,13 +1,25 @@
 package client
 
-type Chat struct {
+type ChatWidget struct {
 	BoxWidget
+	context *Context
 }
 
-func NewChat(row, col, height, width int, context *Context) *Chat {
-	return &Chat{
-		BoxWidget{
-			WidgetBase{row, col, height, width, context},
+func NewChat(row, col, height, width int, context *Context) *ChatWidget {
+	return &ChatWidget{
+		BoxWidget: BoxWidget{
+			WidgetBase: WidgetBase{
+				row: row,
+				col: col,
+				height: height,
+				width: width,
+			},
+			title: "ChatWidget",
 		},
+		context: context,
 	}
+}
+
+func (w *ChatWidget) Redraw() {
+
 }

@@ -2,12 +2,11 @@ package client
 
 type WidgetBase struct {
 	row, col, height, width int
-	context                 *Context
 }
 
 type BoxWidget struct {
 	WidgetBase
+	title string
 }
 
-func (w *BoxWidget) Draw()   {}
-func (w *BoxWidget) Redraw() {}
+func (w *BoxWidget) Draw() {}

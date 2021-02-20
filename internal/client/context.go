@@ -10,6 +10,7 @@ type Context struct {
 	Game           *game.Game
 	History        []*game.Piece
 	Chat           string
+	Message string
 }
 
 func NewContext() *Context {

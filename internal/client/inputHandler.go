@@ -34,7 +34,7 @@ func (handler *inputHandler) Run() {
 	for scanner.Scan() {
 		data := strings.TrimSpace(string(scanner.Bytes()))
 		if !handler.validate(data) {
-			handler.Console.DisplayMessage("Invalid input!")
+			handler.Console.UpdateInfo("Invalid input!")
 			continue
 		}
 		handler.Input <- handler.process(data)

@@ -95,7 +95,7 @@ func main() {
 			return
 		case m := <-fatal:
 			handleExit()
-			log.Printf("GOMOKU has exited due to: %s\nPlease try again!", m)
+			log.Printf("GOMOKU has exited due to %s\nPlease try again!", m)
 			return
 		case m := <-input:
 			err := c.WriteMessage(websocket.TextMessage, m)

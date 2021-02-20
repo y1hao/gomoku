@@ -1,13 +1,25 @@
 package client
 
-type Score struct {
+type ScoreWidget struct {
 	BoxWidget
+	context *Context
 }
 
-func NewScore(row, col, height, width int, context *Context) *Score {
-	return &Score{
-		BoxWidget{
-			WidgetBase{row, col, height, width, context},
+func NewScore(row, col, height, width int, context *Context) *ScoreWidget {
+	return &ScoreWidget{
+		BoxWidget: BoxWidget{
+			WidgetBase: WidgetBase{
+				row: row,
+				col: col,
+				height: height,
+				width: width,
+			},
+			title: "ScoreWidget",
 		},
+		context: context,
 	}
+}
+
+func (w *ScoreWidget) Redraw() {
+
 }

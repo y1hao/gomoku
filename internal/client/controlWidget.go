@@ -1,13 +1,19 @@
 package client
 
-type Control struct {
+type ControlWidget struct {
 	BoxWidget
 }
 
-func NewControl(row, col, height, width int, context *Context) *Control {
-	return &Control{
-		BoxWidget{
-			WidgetBase{row, col, height, width, context},
+func NewControl(row, col, height, width int) *ControlWidget {
+	return &ControlWidget{
+		BoxWidget: BoxWidget{
+			WidgetBase: WidgetBase{
+				row: row,
+				col: col,
+				height: height,
+				width: width,
+			},
+			title: "ControlWidget",
 		},
 	}
 }

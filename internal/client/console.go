@@ -1,9 +1,5 @@
 package client
 
-import (
-	"fmt"
-)
-
 const (
 	titleH   = 3
 	boardH   = 16
@@ -39,23 +35,23 @@ const (
 )
 
 type Console struct {
-	title   *Title
-	board   *Board
-	message *Message
-	score   *Score
-	history *History
-	control *Control
-	chat    *Chat
+	title   *TitleWidget
+	board   *BoardWidget
+	message *MessageWidget
+	score   *ScoreWidget
+	history *HistoryWidget
+	control *ControlWidget
+	chat    *ChatWidget
 }
 
 func NewConsole(context *Context) *Console {
 	return &Console{
-		title:   NewTitle(titleR, titleC, titleH, titleW, context),
+		title:   NewTitle(titleR, titleC, titleH, titleW),
 		board:   NewBoard(boardR, boardC, boardH, boardW, context),
 		message: NewMessage(messageR, messageC, messageH, messageW, context),
 		score:   NewScore(scoreR, scoreC, scoreH, scoreW, context),
 		history: NewHistory(historyR, historyC, historyH, historyW, context),
-		control: NewControl(controlR, controlC, controlH, controlW, context),
+		control: NewControl(controlR, controlC, controlH, controlW),
 		chat:    NewChat(chatR, chatC, chatH, chatW, context),
 	}
 }
@@ -92,12 +88,26 @@ func (c *Console) UpdateChat() {
 	c.chat.Redraw()
 }
 
-func (c *Console) DisplayMessage(m string) {
-	c.message.Update(m)
+func (c *Console) UpdateInfo(m string) {
+	c.message.level = info
+	c.message.context.Message = m
 	c.message.Redraw()
 }
 
-func (c *Console) DisplayError(m string) {
-	c.message.Update(fmt.Sprint("err:", m))
+func (c *Console) UpdateError(m string) {
+	c.message.level = error
+	c.message.context.Message = m
+	c.message.Redraw()
+}
+
+func (c *Console) UpdateWin(m string) {
+	c.message.level = win
+	c.message.context.Message = m
+	c.message.Redraw()
+}
+
+func (c *Console) UpdateLose(m string) {
+	c.message.level = lose
+	c.message.context.Message = m
 	c.message.Redraw()
 }

@@ -5,21 +5,28 @@ import (
 	"github.com/CoderYihaoWang/gomoku/internal/game"
 )
 
-type Board struct {
+type BoardWidget struct {
 	WidgetBase
+	context *Context
 }
 
-func NewBoard(row, col, height, width int, context *Context) *Board {
-	return &Board{
-		WidgetBase{row, col, height, width, context},
+func NewBoard(row, col, height, width int, context *Context) *BoardWidget {
+	return &BoardWidget{
+		WidgetBase: WidgetBase{
+			row: row,
+			col: col,
+			height: height,
+			width: width,
+		},
+		context: context,
 	}
 }
 
-func (w *Board) Draw() {
+func (w *BoardWidget) Draw() {
 	printStatus(w.context.Game)
 }
 
-func (w *Board) Redraw() {
+func (w *BoardWidget) Redraw() {
 	printStatus(w.context.Game)
 }
 

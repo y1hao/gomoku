@@ -37,11 +37,15 @@ func (handler *MessageHandler) Run() {
 func (handler *MessageHandler) handleMessage(m *message.Message) {
 	switch m.Type {
 	case message.Chat:
+		handler.Console.UpdateInfo("")
+
 		chat := m.ChatMessage
 		handler.Console.UpdateChat()
 		fmt.Printf("[%v] %d: %s\n", chat.Time, chat.Sender, chat.Message)
 
 	case message.Status:
+		handler.Console.UpdateInfo("")
+
 		handler.Context.Game = m.Status
 		handler.Console.UpdateGame()
 
@@ -56,16 +60,16 @@ func (handler *MessageHandler) handleMessage(m *message.Message) {
 
 		case handler.Context.Player:
 			handler.Context.Score1++
-			handler.Console.DisplayMessage("WIN !!! (Rematch: <Enter>)")
+			handler.Console.UpdateWin("WIN !!! (Rematch: <Enter>)")
 
 		default:
 			handler.Context.Score2++
-			handler.Console.DisplayError("LOSE... (Rematch: <Enter>)")
+			handler.Console.UpdateLose("LOSE... (Rematch: <Enter>)")
 		}
 		handler.Console.UpdateScore()
 
 	case message.InvitationCode:
-		handler.Console.DisplayMessage(fmt.Sprintf("Your invitation code: %s", m.Info))
+		handler.Console.UpdateInfo(fmt.Sprintf("Your invitation code: %s", m.Info))
 
 	case message.InsufficientInvitationCode:
 		handler.Fatal <- []byte("insufficient invitation code")
@@ -74,20 +78,22 @@ func (handler *MessageHandler) handleMessage(m *message.Message) {
 		handler.Fatal <- []byte("invalid invitation code")
 
 	case message.AssignPlayer:
+		handler.Console.UpdateInfo("")
+
 		p, _ := strconv.Atoi(m.Info)
 		handler.Context.Player = game.Player(p)
 		handler.Console.UpdateGame()
 
 	case message.OpponentLeft:
-		handler.Console.DisplayError("Your opponent has left!")
+		handler.Console.UpdateError("Your opponent has left!")
 
 	case message.InvalidMove:
-		handler.Console.DisplayError("Invalid move")
+		handler.Console.UpdateError("Invalid move")
 
 	case message.InvalidOperation:
-		handler.Console.DisplayError("Invalid operation")
+		handler.Console.UpdateError("Invalid operation")
 
 	case message.InvalidMessageFormat:
-		handler.Console.DisplayError("Invalid message format")
+		handler.Console.UpdateError("Invalid message format")
 	}
 }
