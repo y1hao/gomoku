@@ -1,7 +1,6 @@
 package client
 
 import (
-	"fmt"
 	"github.com/CoderYihaoWang/gomoku/internal/game"
 )
 
@@ -23,22 +22,17 @@ func NewBoard(row, col, height, width int, context *Context) *BoardWidget {
 }
 
 func (w *BoardWidget) Draw() {
-	pushPosition()
-	defer popPosition()
-
 	w.printEmptyBoard()
-	//printStatus(w.context.Game)
 }
 
 func (w *BoardWidget) Redraw() {
-	pushPosition()
-	defer popPosition()
-
-	w.printEmptyBoard()
-	//printStatus(w.context.Game)
+	w.printLastMove()
 }
 
 func (w *BoardWidget) printEmptyBoard() {
+	pushPosition()
+	defer popPosition()
+
 	setPosition(w.row, w.col)
 	printDim(infoF, yellowB, "15 ╔═╤═╤═╤═╤═╤═╤═╤═╤═╤═╤═╤═╤═╤═╗ ")
 	for i := 1; i < w.height-1; i++ {
@@ -54,28 +48,20 @@ func (w *BoardWidget) printEmptyBoard() {
 	printDim(infoF, yellowB, "   a b c d e f g h i j k l m n o ")
 }
 
+func (w *BoardWidget) printLastMove() {
+	pushPosition()
+	defer popPosition()
 
-func printStatus(status *game.Game) {
-	if status == nil {
+	if w.context.Game.LastMove == nil {
 		return
 	}
+	move := w.context.Game.LastMove
+	r, c := 14-move.Row, move.Col
 
-	if status.Winner != game.None {
-		fmt.Printf("%d wins!\n", status.WinningPieces[0].Player)
-		return
-	}
-
-	for i := range status.Board {
-		for j := range status.Board[i] {
-			fmt.Printf("%v ", status.Board[i][j])
-		}
-		fmt.Println()
-	}
-
-	if status.LastMove != nil {
-		fmt.Printf("Last move: %d: [%d, %d]\n",
-			status.LastMove.Player,
-			status.LastMove.Row,
-			status.LastMove.Col)
+	setPosition(w.row+r, w.col+3+c*2)
+	if move.Player == game.Black {
+		print(blackF, yellowB, "⬤")
+	} else {
+		print(whiteF, yellowB, "⬤")
 	}
 }
