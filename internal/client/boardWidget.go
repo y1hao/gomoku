@@ -7,7 +7,7 @@ import (
 type BoardWidget struct {
 	WidgetBase
 	context *Context
-	lastMove game.Piece
+	lastMove *game.Piece
 }
 
 func NewBoardWidget(row, col, height, width int, context *Context) *BoardWidget {
@@ -27,8 +27,8 @@ func (w *BoardWidget) Draw() {
 }
 
 func (w *BoardWidget) Redraw() {
+	w.clearHighLight()
 	w.printLastMove()
-
 }
 
 func (w *BoardWidget) printEmptyBoard() {
@@ -58,16 +58,52 @@ func (w *BoardWidget) printLastMove() {
 		return
 	}
 	move := w.context.Game.LastMove
-	r, c := 14-move.Row, move.Col
+	w.lastMove = move
+	r, c := w.getPiecePosition(move)
 
-	setPosition(w.row+r, w.col+3+c*2)
+	setPosition(r, c-1)
+	print(greenF, yellowB, "[")
 	if move.Player == game.Black {
 		print(blackF, yellowB, "⬤")
 	} else {
 		print(whiteF, yellowB, "⬤")
 	}
+	print(greenF, yellowB, "]")
 }
 
-func (w *BoardWidget) printHighLight() {
+func (w *BoardWidget) clearHighLight() {
+	pushPosition()
+	defer popPosition()
 
+	if w.lastMove == nil {
+		return
+	}
+	r, c := w.getPiecePosition(w.lastMove)
+
+	setPosition(r, c-1)
+	if w.lastMove.Col == 0 {
+		printDim(infoF, yellowB, " ")
+	} else {
+		if w.lastMove.Row == 0 || w.lastMove.Row == 14  {
+			printDim(infoF, yellowB, "═")
+		} else {
+			printDim(infoF, yellowB, "─")
+		}
+	}
+
+	setPosition(r, c+1)
+	if w.lastMove.Col == 14 {
+		printDim(infoF, yellowB, " ")
+	} else {
+		if w.lastMove.Row == 0 || w.lastMove.Row == 14  {
+			printDim(infoF, yellowB, "═")
+		} else {
+			printDim(infoF, yellowB, "─")
+		}
+	}
+}
+
+func (w *BoardWidget) getPiecePosition(p *game.Piece) (row, col int) {
+	r, c := 14-p.Row, p.Col
+	return w.row+r, w.col+3+2*c
 }
