@@ -1,6 +1,8 @@
 package client
 
-import "fmt"
+import (
+	"fmt"
+)
 
 const (
 	titleH   = 3
@@ -25,24 +27,24 @@ const (
 )
 
 type Console struct {
-	title   *titleWidget
-	board   *boardWidget
-	message *messageWidget
-	score   *scoreWidget
-	history *historyWidget
-	control *controlWidget
-	chat    *chatWidget
+	title   *Title
+	board   *Board
+	message *Message
+	score   *Score
+	history *History
+	control *Control
+	chat    *Chat
 }
 
 func NewConsole(context *Context) *Console {
 	return &Console{
-		title:   newTitle(titleR, 0, 0, 0, context),
-		board:   newBoard(boardR, 0, 0, 0, context),
-		message: newMessage(0, 0, 0, 0, context),
-		score:   newScore(0, 0, 0, 0, context),
-		history: newHistory(0, 0, 0, 0, context),
-		control: newControl(0, 0, 0, 0, context),
-		chat:    newChat(0, 0, 0, 0, context),
+		title:   NewTitle(titleR, 0, 0, 0, context),
+		board:   NewBoard(boardR, 0, 0, 0, context),
+		message: NewMessage(0, 0, 0, 0, context),
+		score:   NewScore(0, 0, 0, 0, context),
+		history: NewHistory(0, 0, 0, 0, context),
+		control: NewControl(0, 0, 0, 0, context),
+		chat:    NewChat(0, 0, 0, 0, context),
 	}
 }
 
@@ -52,38 +54,38 @@ func (c *Console) Clear() {
 
 func (c *Console) DrawAll() {
 	c.Clear()
-	c.title.draw()
-	c.board.draw()
-	c.message.draw()
-	c.score.draw()
-	c.history.draw()
-	c.control.draw()
-	c.chat.draw()
+	c.title.Draw()
+	c.board.Draw()
+	c.message.Draw()
+	c.score.Draw()
+	c.history.Draw()
+	c.control.Draw()
+	c.chat.Draw()
 }
 
 func (c *Console) UpdateGame() {
-	c.board.redraw()
-	c.message.redraw()
+	c.board.Redraw()
+	c.message.Redraw()
 }
 
 func (c *Console) UpdateScore() {
-	c.score.redraw()
+	c.score.Redraw()
 }
 
 func (c *Console) UpdateHistory() {
-	c.history.redraw()
+	c.history.Redraw()
 }
 
 func (c *Console) UpdateChat() {
-	c.chat.redraw()
+	c.chat.Redraw()
 }
 
 func (c *Console) DisplayMessage(m string) {
-	c.message.update(m)
-	c.message.redraw()
+	c.message.Update(m)
+	c.message.Redraw()
 }
 
 func (c *Console) DisplayError(m string) {
-	c.message.update(fmt.Sprint("err:", m))
-	c.message.redraw()
+	c.message.Update(fmt.Sprint("err:", m))
+	c.message.Redraw()
 }
