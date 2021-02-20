@@ -51,7 +51,10 @@ func (w *MessageWidget) Redraw() {
 		print(whiteF, mainB, "⬤")
 	} else if w.context.Player == game.Black {
 		print(blackF, mainB, "⬤")
+	} else {
+		print(highlightF, mainB, "?")
 	}
+	print(infoF, mainB, " ")
 
 	setPosition(w.row, w.col+w.width-len("O's turn"))
 	if w.context.Game.Player == game.White {
@@ -61,7 +64,7 @@ func (w *MessageWidget) Redraw() {
 	}
 	print(infoF, mainB, "'s turn")
 
-	setPosition(w.row, w.col+len("You play O "))
+	setPosition(w.row, w.col+len(" You play O "))
 	var fg, bg color
 	switch w.level {
 	case info:
@@ -72,6 +75,6 @@ func (w *MessageWidget) Redraw() {
 		fg, bg = infoF, winB
 	}
 	print(fg, bg,
-		fmt.Sprintf(fmt.Sprintf(" %%-%ds", w.width-len(" You play O ")-len(" O's turn")),
+		fmt.Sprintf(fmt.Sprintf(" %%-%ds", w.width-len(" You play O ")-len(" O's turn ")),
 		w.context.Message))
 }

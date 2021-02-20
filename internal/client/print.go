@@ -25,7 +25,6 @@ const (
 	highlightF, highlightB               = yellowF, yellowB
 	winF, winB = greenF, greenB
 	loseF, loseB = redF, redB
-	drawF, drawB = yellowF, yellowB
 )
 
 type color int
