@@ -13,5 +13,8 @@ type Context struct {
 }
 
 func NewContext() *Context {
-	return &Context{}
+	return &Context{
+		History: make([]*game.Piece, 0),
+		Game:    game.New(),
+	}
 }

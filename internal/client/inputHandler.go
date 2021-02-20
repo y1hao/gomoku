@@ -14,16 +14,16 @@ import (
 const ExitInput = "exit"
 
 type inputHandler struct {
-	Input chan []byte
-	Exit chan struct{}
+	Input   chan []byte
+	Exit    chan struct{}
 	Console *Console
 	Context *Context
 }
 
 func NewInputHandler(input chan []byte, exit chan struct{}, console *Console, context *Context) *inputHandler {
 	return &inputHandler{
-		Input: input,
-		Exit: exit,
+		Input:   input,
+		Exit:    exit,
 		Console: console,
 		Context: context,
 	}
@@ -37,7 +37,7 @@ func (handler *inputHandler) Run() {
 			handler.Console.DisplayMessage("Invalid input!")
 			continue
 		}
-		handler.Input <-handler.process(data)
+		handler.Input <- handler.process(data)
 	}
 }
 
@@ -94,14 +94,14 @@ func (handler *inputHandler) process(m string) (data []byte) {
 	case strings.HasPrefix(m, "'") && strings.HasSuffix(m, "'"):
 		data, _ = json.Marshal(message.NewChat(&message.ChatMessage{
 			Sender:  handler.Context.Player,
-			Message: m[1:len(m)-1],
+			Message: m[1 : len(m)-1],
 		}))
 
 	default:
 		l, d := m[0], m[1:]
 		row, _ := strconv.Atoi(d)
 		row--
-		col := int(l-'a')
+		col := int(l - 'a')
 		data, _ = json.Marshal(message.NewMove(&game.Piece{
 			Row:    row,
 			Col:    col,

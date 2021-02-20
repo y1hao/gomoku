@@ -5,21 +5,21 @@ import (
 )
 
 const (
-	blackF, blackB = 30, 40
-	redF, redB = 31, 41
-	greenF, greenB = 32, 42
-	yellowF, yellowB = 33, 43
-	blueF, blueB = 34, 44
+	blackF, blackB     = 30, 40
+	redF, redB         = 31, 41
+	greenF, greenB     = 32, 42
+	yellowF, yellowB   = 33, 43
+	blueF, blueB       = 34, 44
 	magentaF, magentaB = 35, 45
-	cyanF, cyanB = 36, 46
-	whiteF, whiteB = 37, 47
+	cyanF, cyanB       = 36, 46
+	whiteF, whiteB     = 37, 47
 )
 
 type color int
 
 type colored struct {
 	fg, bg color
-	text string
+	text   string
 }
 
 type formatted struct {
@@ -39,14 +39,17 @@ func print(output ...*formatted) {
 	}
 }
 
-func clear() { fmt.Print("\033[J") }
+func clear() {
+	fmt.Print("\033[2J")
+	setPosition(0, 0)
+}
 
 func clearArea(fromR, fromC, toR, toC int) {
 
 }
 
-func pushPosition() { fmt.Print("\033[s") }
-func popPosition() { fmt.Print("\330[u") }
+func pushPosition()            { fmt.Print("\033[s") }
+func popPosition()             { fmt.Print("\330[u") }
 func setPosition(row, col int) { fmt.Printf("\033[%d;%dH", row, col) }
-func setColor(fg, bg color) { fmt.Printf("\033[%d;%dm", fg, bg) }
-func resetColor() { fmt.Printf("\033[m") }
+func setColor(fg, bg color)    { fmt.Printf("\033[%d;%dm", fg, bg) }
+func resetColor()              { fmt.Printf("\033[m") }

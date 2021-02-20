@@ -43,7 +43,8 @@ func main() {
 	console.DrawAll()
 
 	messages := make(chan *message.Message)
-	messageHandler := client.NewMessageHandler(messages, console, context)
+	fatal := make(chan []byte)
+	messageHandler := client.NewMessageHandler(messages, fatal, console, context)
 	go messageHandler.Run()
 
 	input := make(chan []byte)
@@ -64,19 +65,37 @@ func main() {
 			if err != nil {
 				continue
 			}
-			messages <-&m
+			messages <- &m
 		}
 	}()
+
+	handleExit := func() {
+		err := c.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+		if err != nil {
+			log.Println("Connection was lost")
+			return
+		}
+		select {
+		case <-done:
+		case <-time.After(time.Second):
+		}
+		console.Clear()
+		return
+	}
 
 	for {
 		select {
 		case <-done:
 			return
 		case <-interrupt:
-			handleExit(c, done)
+			handleExit()
 			return
 		case <-exit:
-			handleExit(c, done)
+			handleExit()
+			return
+		case m := <-fatal:
+			handleExit()
+			log.Printf("GOMOKU has exited due to: %s\nPlease try again!", m)
 			return
 		case m := <-input:
 			err := c.WriteMessage(websocket.TextMessage, m)
@@ -86,17 +105,4 @@ func main() {
 			}
 		}
 	}
-}
-
-func handleExit(c *websocket.Conn, done chan struct{}) {
-	err := c.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
-	if err != nil {
-		log.Println("Connection was lost")
-		return
-	}
-	select {
-	case <-done:
-	case <-time.After(time.Second):
-	}
-	return
 }

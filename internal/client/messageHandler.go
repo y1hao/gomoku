@@ -10,13 +10,15 @@ import (
 
 type MessageHandler struct {
 	Message chan *message.Message
+	Fatal   chan []byte
 	Console *Console
 	Context *Context
 }
 
-func NewMessageHandler(message chan *message.Message, console *Console, context *Context) *MessageHandler {
+func NewMessageHandler(message chan *message.Message, fatal chan []byte, console *Console, context *Context) *MessageHandler {
 	return &MessageHandler{
 		Message: message,
+		Fatal:   fatal,
 		Console: console,
 		Context: context,
 	}
@@ -41,8 +43,7 @@ func (handler *MessageHandler) handleMessage(m *message.Message) {
 
 	case message.Status:
 		handler.Context.Game = m.Status
-		handler.Console.UpdateBoard()
-		handler.Console.UpdateInfo()
+		handler.Console.UpdateGame()
 
 		if m.Status.LastMove != nil {
 			handler.Context.History = append(handler.Context.History, m.Status.LastMove)
@@ -67,26 +68,26 @@ func (handler *MessageHandler) handleMessage(m *message.Message) {
 		handler.Console.DisplayMessage(fmt.Sprintf("Your invitation code: %s", m.Info))
 
 	case message.InsufficientInvitationCode:
-		handler.Console.DisplayFatal("Sorry, too many players online at the moment.\nPlease try again later!")
+		handler.Fatal <- []byte("insufficient invitation code")
+
+	case message.InvalidInvitationCode:
+		handler.Fatal <- []byte("invalid invitation code")
 
 	case message.AssignPlayer:
 		p, _ := strconv.Atoi(m.Info)
 		handler.Context.Player = game.Player(p)
-		handler.Console.UpdateInfo()
+		handler.Console.UpdateGame()
 
 	case message.OpponentLeft:
 		handler.Console.DisplayError("Your opponent has left!")
 
-	case message.InvalidInvitationCode:
-		handler.Console.DisplayError("Invalid invitation code: %s")
-
 	case message.InvalidMove:
 		handler.Console.DisplayError("Invalid move")
 
-	case message.InvalidMessageFormat:
-		handler.Console.DisplayError("Invalid message format")
-
 	case message.InvalidOperation:
 		handler.Console.DisplayError("Invalid operation")
+
+	case message.InvalidMessageFormat:
+		handler.Console.DisplayError("Invalid message format")
 	}
 }
