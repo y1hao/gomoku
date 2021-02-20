@@ -35,6 +35,7 @@ const (
 	scoreC   = titleC + boardW
 	historyC = scoreC
 	controlC = scoreC
+	inputC   = titleC
 )
 
 type Console struct {
@@ -76,8 +77,9 @@ func (c *Console) DrawAll() {
 }
 
 func (c *Console) WaitForInput() {
-	setPosition(inputR, 1)
+	setPosition(inputR, inputC)
 	fmt.Print("> ")
+	clearToEnd()
 }
 
 func (c *Console) NewGame() {

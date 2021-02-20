@@ -60,3 +60,7 @@ func clear() {
 	fmt.Print("\033[2J")
 	setPosition(1, 1)
 }
+
+func clearToEnd() {
+	fmt.Print("\033[0K")
+}
