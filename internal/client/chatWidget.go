@@ -104,7 +104,7 @@ func (w *ChatWidget) getMessageHeight(m *message.ChatMessage) int {
 }
 
 func (w *ChatWidget) clearMessage() {
-	empty := strings.Repeat(" ", w.width-2-len(" [00:00:00] "))
+	empty := strings.Repeat(" ", w.width-2)
 	for i := w.row+1; i < w.row+w.height-1; i++ {
 		setPosition(i, w.col+1)
 		print(infoF, blackB, empty)
