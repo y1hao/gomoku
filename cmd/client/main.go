@@ -21,7 +21,6 @@ var code = flag.Int("code", -1, "invitation code")
 
 func main() {
 	flag.Parse()
-	log.SetFlags(0)
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
@@ -35,7 +34,7 @@ func main() {
 
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
-		log.Fatal("dial:", err)
+		log.Fatal("Cannot connect to server!\n")
 	}
 	defer c.Close()
 
