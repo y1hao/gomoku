@@ -31,6 +31,8 @@ func (w *ChatWidget) Redraw() {
 	pushPosition()
 	defer popPosition()
 
+	w.clearMessage()
+
 	h := 0
 	var chats []*message.ChatMessage
 	for i := len(w.context.Chat)-1; i >=0 && h < w.height-2; i-- {
@@ -41,25 +43,21 @@ func (w *ChatWidget) Redraw() {
 }
 
 func (w *ChatWidget) printChats(chats []*message.ChatMessage, h int) {
-	r := w.row+ h
-	if r > w.row+w.height-2 {
-		r = w.row+w.height-2
+	r := w.row+1+h
+	if r > w.row+w.height-1 {
+		r = w.row+w.height-1
 	}
-	for _, chat := range chats {
-		r -= w.printMessage(chat, r)
+	for i := 0; i < len(chats); i++ {
+		r -= w.getMessageHeight(chats[i])
+		w.printMessage(chats[i], r)
 	}
 }
 
-func (w *ChatWidget) getMessageHeight(m *message.ChatMessage) int {
-	return int(math.Ceil(float64(len(m.Message))/float64(w.width-2-len(" [00:00:00] "))))
-}
-
-func (w *ChatWidget) printMessage(m *message.ChatMessage, begR int) int {
-	w.clearMessage()
-
+func (w *ChatWidget) printMessage(m *message.ChatMessage, begR int) {
 	rows := w.getMessageRows(m)
 	if begR < w.row+1 {
-		rows = rows[w.row+1-begR:]
+		n := len(rows)-(w.row+1-begR)
+		rows = rows[len(rows)-n:]
 		if len(rows[0]) < 3 {
 			rows[0] = "..."
 		} else {
@@ -69,6 +67,7 @@ func (w *ChatWidget) printMessage(m *message.ChatMessage, begR int) int {
 	}
 
 	timeStamp := fmt.Sprintf(" [%02d:%02d:%02d] ", m.Time.Hour(), m.Time.Minute(), m.Time.Second())
+
 	setPosition(begR, w.col+1)
 	printBold(highlightF, blackB, timeStamp)
 
@@ -80,11 +79,9 @@ func (w *ChatWidget) printMessage(m *message.ChatMessage, begR int) int {
 	}
 
 	for i := 0; i < len(rows); i++ {
-		setPosition(begR, w.col+1+len(" [00:00:00] "))
+		setPosition(begR+i, w.col+1+len(" [00:00:00] "))
 		print(color, blackB, rows[i])
 	}
-
-	return w.getMessageHeight(m)
 }
 
 func (w *ChatWidget) getMessageRows(chat *message.ChatMessage) []string {
@@ -100,6 +97,10 @@ func (w *ChatWidget) getMessageRows(chat *message.ChatMessage) []string {
 		start += size
 	}
 	return mRows
+}
+
+func (w *ChatWidget) getMessageHeight(m *message.ChatMessage) int {
+	return int(math.Ceil(float64(len(m.Message))/float64(w.width-2-len(" [00:00:00] "))))
 }
 
 func (w *ChatWidget) clearMessage() {
