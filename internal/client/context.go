@@ -21,14 +21,14 @@ type Context struct {
 	Game           *game.Game
 	History        []*game.Piece
 	Chat           []*message.ChatMessage
-	Message string
-	Level level
+	Message        string
+	Level          level
 }
 
 func NewContext() *Context {
 	return &Context{
 		History: make([]*game.Piece, 0),
-		Chat: make([]*message.ChatMessage, 0),
+		Chat:    make([]*message.ChatMessage, 0),
 		Game:    game.New(),
 	}
 }

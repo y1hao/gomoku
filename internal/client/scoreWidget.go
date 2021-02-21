@@ -11,10 +11,10 @@ func NewScoreWidget(row, col, height, width int, context *Context) *ScoreWidget 
 	return &ScoreWidget{
 		BoxWidget: BoxWidget{
 			WidgetBase: WidgetBase{
-				row: row,
-				col: col,
+				row:    row,
+				col:    col,
 				height: height,
-				width: width,
+				width:  width,
 			},
 			title: "Score",
 		},

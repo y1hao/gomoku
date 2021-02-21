@@ -2,9 +2,10 @@ package client
 
 import (
 	"fmt"
-	"github.com/CoderYihaoWang/gomoku/internal/message"
 	"math"
 	"strings"
+
+	"github.com/CoderYihaoWang/gomoku/internal/message"
 )
 
 type ChatWidget struct {
@@ -16,10 +17,10 @@ func NewChatWidget(row, col, height, width int, context *Context) *ChatWidget {
 	return &ChatWidget{
 		BoxWidget: BoxWidget{
 			WidgetBase: WidgetBase{
-				row: row,
-				col: col,
+				row:    row,
+				col:    col,
 				height: height,
-				width: width,
+				width:  width,
 			},
 			title: "Chat",
 		},
@@ -35,7 +36,7 @@ func (w *ChatWidget) Redraw() {
 
 	h := 0
 	var chats []*message.ChatMessage
-	for i := len(w.context.Chat)-1; i >=0 && h < w.height-2; i-- {
+	for i := len(w.context.Chat) - 1; i >= 0 && h < w.height-2; i-- {
 		h += w.getMessageHeight(w.context.Chat[i])
 		chats = append(chats, w.context.Chat[i])
 	}
@@ -43,9 +44,9 @@ func (w *ChatWidget) Redraw() {
 }
 
 func (w *ChatWidget) printChats(chats []*message.ChatMessage, h int) {
-	r := w.row+1+h
+	r := w.row + 1 + h
 	if r > w.row+w.height-1 {
-		r = w.row+w.height-1
+		r = w.row + w.height - 1
 	}
 	for i := 0; i < len(chats); i++ {
 		r -= w.getMessageHeight(chats[i])
@@ -56,14 +57,14 @@ func (w *ChatWidget) printChats(chats []*message.ChatMessage, h int) {
 func (w *ChatWidget) printMessage(m *message.ChatMessage, begR int) {
 	rows := w.getMessageRows(m)
 	if begR < w.row+1 {
-		n := len(rows)-(w.row+1-begR)
+		n := len(rows) - (w.row + 1 - begR)
 		rows = rows[len(rows)-n:]
 		if len(rows[0]) < 3 {
 			rows[0] = "..."
 		} else {
 			rows[0] = "..." + rows[0][3:]
 		}
-		begR = w.row+1
+		begR = w.row + 1
 	}
 
 	timeStamp := fmt.Sprintf(" [%02d:%02d:%02d] ", m.Time.Hour(), m.Time.Minute(), m.Time.Second())
@@ -100,12 +101,12 @@ func (w *ChatWidget) getMessageRows(chat *message.ChatMessage) []string {
 }
 
 func (w *ChatWidget) getMessageHeight(m *message.ChatMessage) int {
-	return int(math.Ceil(float64(len(m.Message))/float64(w.width-2-len(" [00:00:00] "))))
+	return int(math.Ceil(float64(len(m.Message)) / float64(w.width-2-len(" [00:00:00] "))))
 }
 
 func (w *ChatWidget) clearMessage() {
 	empty := strings.Repeat(" ", w.width-2)
-	for i := w.row+1; i < w.row+w.height-1; i++ {
+	for i := w.row + 1; i < w.row+w.height-1; i++ {
 		setPosition(i, w.col+1)
 		print(infoF, blackB, empty)
 	}

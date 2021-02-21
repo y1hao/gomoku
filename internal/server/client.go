@@ -8,10 +8,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gorilla/websocket"
+
 	"github.com/CoderYihaoWang/gomoku/internal/game"
 	"github.com/CoderYihaoWang/gomoku/internal/invitationCode"
 	"github.com/CoderYihaoWang/gomoku/internal/message"
-	"github.com/gorilla/websocket"
 )
 
 const (

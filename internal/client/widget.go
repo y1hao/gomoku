@@ -14,7 +14,7 @@ type WidgetBase struct {
 	row, col, height, width int
 }
 
-func (w *WidgetBase) Draw() {}
+func (w *WidgetBase) Draw()   {}
 func (w *WidgetBase) Redraw() {}
 
 type BoxWidget struct {
@@ -36,9 +36,9 @@ func (w *BoxWidget) drawTitle() {
 }
 
 func (w *BoxWidget) formatTitle() string {
-	totalLen := w.width-4
-	leftSpaces := (totalLen-len(w.title))/2
-	rightSpaces := totalLen-len(w.title)-leftSpaces
+	totalLen := w.width - 4
+	leftSpaces := (totalLen - len(w.title)) / 2
+	rightSpaces := totalLen - len(w.title) - leftSpaces
 	return fmt.Sprintf("%s%s%s",
 		strings.Repeat(" ", leftSpaces),
 		w.title,

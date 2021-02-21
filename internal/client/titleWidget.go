@@ -11,15 +11,15 @@ type TitleWidget struct {
 func NewTitleWidget(row, col, height, width int) *TitleWidget {
 	return &TitleWidget{
 		WidgetBase{
-			row:     row,
-			col:     col,
-			height:  height,
-			width:   width,
+			row:    row,
+			col:    col,
+			height: height,
+			width:  width,
 		},
 	}
 }
 
-func (w *TitleWidget) Draw()   {
+func (w *TitleWidget) Draw() {
 	pushPosition()
 	defer popPosition()
 
@@ -28,7 +28,7 @@ func (w *TitleWidget) Draw()   {
 	setPosition(w.row, w.col)
 	printf(infoF, mainB, "%s%s%s", "╔", strings.Repeat("═", w.width-2), "╗")
 
-	spaces := w.width-2-len("G O M O K U")
+	spaces := w.width - 2 - len("G O M O K U")
 	leftSpaces, rightSpaces := spaces/2, spaces-spaces/2
 
 	setPosition(w.row+1, w.col)

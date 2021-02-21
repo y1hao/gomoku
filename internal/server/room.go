@@ -2,9 +2,10 @@ package server
 
 import (
 	"encoding/json"
-	"github.com/gorilla/websocket"
 	"math/rand"
 	"sync"
+
+	"github.com/gorilla/websocket"
 
 	"github.com/CoderYihaoWang/gomoku/internal/game"
 	"github.com/CoderYihaoWang/gomoku/internal/message"

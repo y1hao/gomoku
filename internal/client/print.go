@@ -22,20 +22,20 @@ const (
 	errorF, errorB         = redF, redB
 	youF, youB             = greenF, greenB
 	oppF, oppB             = magentaF, magentaB
-	highlightF, highlightB               = yellowF, yellowB
-	winF, winB = greenF, greenB
-	loseF, loseB = redF, redB
+	highlightF, highlightB = yellowF, yellowB
+	winF, winB             = greenF, greenB
+	loseF, loseB           = redF, redB
 )
 
 type color int
 
-func pushPosition()            { fmt.Print("\033[s") }
-func popPosition()             { fmt.Print("\033[u") }
-func setPosition(row, col int) { fmt.Printf("\033[%d;%dH", row, col) }
-func setColor(fg, bg color)    { fmt.Printf("\033[%d;%dm", fg, bg) }
-func setDimColor(fg, bg color) { fmt.Printf("\033[2;%d;%dm", fg, bg) }
+func pushPosition()             { fmt.Print("\033[s") }
+func popPosition()              { fmt.Print("\033[u") }
+func setPosition(row, col int)  { fmt.Printf("\033[%d;%dH", row, col) }
+func setColor(fg, bg color)     { fmt.Printf("\033[%d;%dm", fg, bg) }
+func setDimColor(fg, bg color)  { fmt.Printf("\033[2;%d;%dm", fg, bg) }
 func setBoldColor(fg, bg color) { fmt.Printf("\033[1;%d;%dm", fg, bg) }
-func resetColor()              { fmt.Printf("\033[m") }
+func resetColor()               { fmt.Printf("\033[m") }
 
 func print(fg, bg color, m string) {
 	setColor(fg, bg)

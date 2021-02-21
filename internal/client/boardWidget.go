@@ -6,17 +6,17 @@ import (
 
 type BoardWidget struct {
 	WidgetBase
-	context *Context
+	context  *Context
 	lastMove *game.Piece
 }
 
 func NewBoardWidget(row, col, height, width int, context *Context) *BoardWidget {
 	return &BoardWidget{
 		WidgetBase: WidgetBase{
-			row: row,
-			col: col,
+			row:    row,
+			col:    col,
 			height: height,
-			width: width,
+			width:  width,
 		},
 		context: context,
 	}
@@ -104,7 +104,7 @@ func (w *BoardWidget) clearHighLight(p *game.Piece) {
 	if p.Col == 0 {
 		printDim(infoF, yellowB, " ")
 	} else {
-		if p.Row == 0 || p.Row == 14  {
+		if p.Row == 0 || p.Row == 14 {
 			printDim(infoF, yellowB, "═")
 		} else {
 			printDim(infoF, yellowB, "─")
@@ -115,7 +115,7 @@ func (w *BoardWidget) clearHighLight(p *game.Piece) {
 	if p.Col == 14 {
 		printDim(infoF, yellowB, " ")
 	} else {
-		if p.Row == 0 || p.Row == 14  {
+		if p.Row == 0 || p.Row == 14 {
 			printDim(infoF, yellowB, "═")
 		} else {
 			printDim(infoF, yellowB, "─")
@@ -125,5 +125,5 @@ func (w *BoardWidget) clearHighLight(p *game.Piece) {
 
 func (w *BoardWidget) getPiecePosition(p *game.Piece) (row, col int) {
 	r, c := 14-p.Row, p.Col
-	return w.row+r, w.col+3+2*c
+	return w.row + r, w.col + 3 + 2*c
 }

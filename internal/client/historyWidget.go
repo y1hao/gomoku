@@ -2,8 +2,9 @@ package client
 
 import (
 	"fmt"
-	"github.com/CoderYihaoWang/gomoku/internal/game"
 	"strings"
+
+	"github.com/CoderYihaoWang/gomoku/internal/game"
 )
 
 type HistoryWidget struct {
@@ -15,10 +16,10 @@ func NewHistoryWidget(row, col, height, width int, context *Context) *HistoryWid
 	return &HistoryWidget{
 		BoxWidget: BoxWidget{
 			WidgetBase: WidgetBase{
-				row: row,
-				col: col,
+				row:    row,
+				col:    col,
 				height: height,
-				width: width,
+				width:  width,
 			},
 			title: "History",
 		},
@@ -37,12 +38,12 @@ func (w *HistoryWidget) Redraw() {
 
 	var history []*game.Piece
 	count := 0
-	for i := len(w.context.History)-1; i >= 0 && count < 3; i-- {
+	for i := len(w.context.History) - 1; i >= 0 && count < 3; i-- {
 		history = append(history, w.context.History[i])
 		count++
 	}
 
-	index := len(w.context.History)-1
+	index := len(w.context.History) - 1
 	i := 1
 	for _, move := range history {
 		setPosition(w.row+i, w.col+1)
@@ -69,7 +70,7 @@ func (w *HistoryWidget) drawMove(p *game.Piece) {
 
 func (w *HistoryWidget) clear() {
 	empty := strings.Repeat(" ", w.width-2)
-	for i := w.row+1; i < w.row+w.height-1; i++ {
+	for i := w.row + 1; i < w.row+w.height-1; i++ {
 		setPosition(i, w.col+1)
 		print(infoF, blackB, empty)
 	}

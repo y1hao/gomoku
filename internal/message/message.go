@@ -1,9 +1,10 @@
 package message
 
 import (
-	"github.com/CoderYihaoWang/gomoku/internal/game"
 	"strconv"
 	"time"
+
+	"github.com/CoderYihaoWang/gomoku/internal/game"
 )
 
 const (

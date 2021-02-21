@@ -2,8 +2,9 @@ package client
 
 import (
 	"fmt"
-	"github.com/CoderYihaoWang/gomoku/internal/game"
 	"strings"
+
+	"github.com/CoderYihaoWang/gomoku/internal/game"
 )
 
 type MessageWidget struct {
@@ -14,10 +15,10 @@ type MessageWidget struct {
 func NewMessage(row, col, height, width int, context *Context) *MessageWidget {
 	return &MessageWidget{
 		WidgetBase: WidgetBase{
-			row: row,
-			col: col,
+			row:    row,
+			col:    col,
 			height: height,
-			width: width,
+			width:  width,
 		},
 		context: context,
 	}
@@ -75,5 +76,5 @@ func (w *MessageWidget) Redraw() {
 
 	print(fg, bg,
 		fmt.Sprintf(fmt.Sprintf(" %%-%ds", w.width-1-len(" You play O ")-len(" O's turn ")),
-		w.context.Message))
+			w.context.Message))
 }
