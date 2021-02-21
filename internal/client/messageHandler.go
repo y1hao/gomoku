@@ -51,6 +51,8 @@ func (handler *MessageHandler) handleMessage(m *message.Message) {
 
 		if m.Status.LastMove != nil {
 			handler.Context.History = append(handler.Context.History, m.Status.LastMove)
+		} else {
+			handler.Context.History = make([]*game.Piece, 0)
 		}
 		handler.Console.UpdateHistory()
 

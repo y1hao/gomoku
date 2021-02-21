@@ -3,6 +3,7 @@ package client
 import (
 	"fmt"
 	"github.com/CoderYihaoWang/gomoku/internal/game"
+	"strings"
 )
 
 type HistoryWidget struct {
@@ -28,6 +29,11 @@ func NewHistoryWidget(row, col, height, width int, context *Context) *HistoryWid
 func (w *HistoryWidget) Redraw() {
 	pushPosition()
 	defer popPosition()
+
+	if len(w.context.History) == 0 {
+		w.clear()
+		return
+	}
 
 	var history []*game.Piece
 	count := 0
@@ -61,7 +67,15 @@ func (w *HistoryWidget) drawMove(p *game.Piece) {
 	}
 }
 
-func (w HistoryWidget) getPieceCode(p *game.Piece) string {
+func (w *HistoryWidget) clear() {
+	empty := strings.Repeat(" ", w.width-2)
+	for i := w.row+1; i < w.row+w.height-1; i++ {
+		setPosition(i, w.col+1)
+		print(infoF, blackB, empty)
+	}
+}
+
+func (w *HistoryWidget) getPieceCode(p *game.Piece) string {
 	str := fmt.Sprintf("%c%d", p.Col+'a', p.Row+1)
 	return fmt.Sprintf("%-3s", str)
 }

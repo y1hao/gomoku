@@ -84,6 +84,8 @@ func (handler *inputHandler) process(m string) (data []byte) {
 	// rematch
 	if handler.Context.Game.Winner != game.None && len(m) == 0 {
 		data, _ = json.Marshal(message.NewNextGame())
+		handler.Console.UpdateInfo("Waiting for opponent...")
+		handler.Console.WaitForInput()
 		return
 	}
 
