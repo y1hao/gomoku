@@ -47,7 +47,7 @@ func (w *HistoryWidget) Redraw() {
 	i := 1
 	for _, move := range history {
 		setPosition(w.row+i, w.col+1)
-		print(infoF, blackB, fmt.Sprintf("%4d: ", index))
+		print(infoF, blackB, fmt.Sprintf("%4d: ", index+1))
 		index--
 		i++
 		w.drawMove(move)
